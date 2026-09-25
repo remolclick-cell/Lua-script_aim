@@ -1,9 +1,10 @@
---// LEMOS 0.1
---// Universal Executor Script
---// Synapse X / Script-Ware / Fluxus / Delta / Solara / Wave
+--// LEMOS 0.2
+--// Universal Executor Script (Synapse X / Script-Ware / Fluxus / Delta / Solara / Wave)
+--// Меню для чита. Всё на русском. В стиле Fluent UI.
+--// Без значков и смайликов.
 
 --//==================================================
---// EXECUTOR CHECK
+--// ПРОВЕРКА ЭКЗЕКЬЮТЕРА
 --//==================================================
 
 local Executor = "Unknown"
@@ -31,7 +32,7 @@ if not IsExecutor then
 end
 
 --//==================================================
---// SAFE WRAPPERS
+--// БЕЗОПАСНЫЕ ОБЁРТКИ
 --//==================================================
 
 local function safeCall(fn, ...)
@@ -62,7 +63,7 @@ local function safeMakeFolder(path)
 end
 
 --//==================================================
---// SERVICES
+--// СЕРВИСЫ
 --//==================================================
 
 local Players = game:GetService("Players")
@@ -92,89 +93,160 @@ pcall(function()
 end)
 
 --//==================================================
---// CONFIG
+--// КОНФИГ
 --//==================================================
 
 local Config = {
     ScriptName = "LEMOS",
-    Version = "0.1",
+    Version = "0.2",
     WindowScale = 1,
     WindowTransparency = 0.06,
     Theme = "Dark",
+    MenuKey = Enum.KeyCode.Insert,
 
-    ESP = {
-        Enabled = true,
-        Boxes = true,
-        Health = true,
-        Names = true,
-        Distance = true,
-        Tracers = true,
-        Chams = false,
-        VisibilityCheck = true,
-        BoxScale = 1.15,
-        Color = Color3.fromRGB(255, 111, 25),
-        TracerColor = Color3.fromRGB(255, 111, 25),
-        ChamColor = Color3.fromRGB(255, 111, 25),
-    },
-
-    AIM = {
-        Enabled = false,
-        FOV = 140,
-        Smoothness = 0.15,
-        Bone = "Head",
+    -- Combat
+    Combat = {
+        Aimbot = false,
+        AimbotKey = Enum.KeyCode.E,
+        AimbotFOV = 140,
+        AimbotSmoothness = 0.15,
+        AimbotHitbox = "Head",
+        AimbotTargetMode = "Closest",
         SilentAim = false,
-        Triggerbot = false,
-        TriggerDelay = 0.1,
-        VisibleCheck = true,
-        Sensitivity = 0.5,
+        SilentAimFOV = 140,
+        NoRecoil = false,
+        NoSpread = false,
+        NoSway = false,
+        NoScope = false,
+        InstantHit = false,
+        InfiniteAmmo = false,
+        RapidFire = false,
+        FastReload = false,
+        HeadshotOnly = false,
+        WallCheck = true,
+        FOVCircle = true,
+        FOVCircleColor = Color3.fromRGB(255,111,25),
+        FOVCircleThickness = 1,
     },
 
-    Visual = {
-        Fog = false,
-        FogColor = Color3.fromRGB(255, 0, 0),
-        FogStart = 0,
-        FogEnd = 500,
-        ThirdPerson = false,
-        ThirdPersonDistance = 8,
-        ThirdPersonHeight = 2,
-        Spinbot = false,
-        SpinbotSpeed = 10,
-        Scale = 1,
+    -- Visuals
+    Visuals = {
+        ESP = false,
+        Box = false,
+        BoxStyle = "2D",
+        BoxColor = Color3.fromRGB(255,111,25),
+        BoxFill = false,
+        BoxFillColor = Color3.fromRGB(255,111,25),
+        BoxFillAlpha = 0.7,
+        Name = false,
+        NameColor = Color3.fromRGB(255,255,255),
+        Distance = false,
+        DistanceColor = Color3.fromRGB(200,200,200),
+        HealthBar = false,
+        HealthText = false,
+        ArmorBar = false,
+        WeaponName = false,
+        Skeleton = false,
+        SkeletonColor = Color3.fromRGB(255,255,255),
+        HeadDot = false,
+        HeadDotColor = Color3.fromRGB(255,111,25),
+        Chams = false,
+        ChamsColor = Color3.fromRGB(255,111,25),
+        ChamsVisibleOnly = false,
+        Tracers = false,
+        TracerOrigin = "Bottom",
+        TracerColor = Color3.fromRGB(255,111,25),
+        OffscreenArrows = false,
+        OffscreenArrowsColor = Color3.fromRGB(255,111,25),
+        MaxDistance = 500,
+        TeamColor = Color3.fromRGB(90,225,105),
+        EnemyColor = Color3.fromRGB(255,70,75),
+        PriorityColor = Color3.fromRGB(255,255,0),
+        Wallhack = false,
+        WallhackOpacity = 0.5,
+        WallhackColor = Color3.fromRGB(255,111,25),
+        Radar = false,
+        RadarSize = 150,
+        RadarZoom = 1,
+        RadarPosition = "TopRight",
+        RadarRotate = false,
+        RadarShowNames = true,
+        SoundESP = false,
+        SoundESPRadius = 50,
+        SoundESPColor = Color3.fromRGB(255,111,25),
+        FootstepESP = false,
+        GrenadeESP = false,
+        GrenadeWarning = false,
+        BombESP = false,
+        DefuseTimer = false,
+        PlantTimer = false,
+    },
+
+    -- Effects
+    Effects = {
+        Brightness = 0,
+        Contrast = 0,
+        Saturation = 0,
+        Gamma = 0,
         PlayerColor = false,
-        PlayerColorValue = Color3.fromRGB(255, 0, 0),
+        PlayerColorValue = Color3.fromRGB(255,0,0),
+        FogColor = Color3.fromRGB(255,0,0),
+        FogDensity = 0.5,
+        NightMode = false,
+        NightModeIntensity = 0.5,
+        Fullbright = false,
+        NoFog = false,
+        NoGrass = false,
+        NoFlash = false,
+        NoSmoke = false,
+        SkyboxChanger = false,
+        SkyboxName = "Default",
+        Bhop = false,
+        BhopChance = 100,
+        AutoStrafe = false,
+        NoClip = false,
+        Watermark = false,
+        FPSCounter = false,
+        PingCounter = false,
     },
 
+    -- Misc
     Misc = {
         Speed = 16,
+        JumpPower = 50,
+        Invisible = false,
+        Fly = false,
+        FlySpeed = 50,
         Teleport = false,
         TeleportTarget = "",
-        Invisible = false,
+        Notifications = true,
+        Hotkey = Enum.KeyCode.Insert,
     },
 }
 
 --//==================================================
---// THEMES
+--// ТЕМЫ
 --//==================================================
 
 local Themes = {
     Dark = {accent=Color3.fromRGB(255,111,25), bg=Color3.fromRGB(12,12,13), panel=Color3.fromRGB(18,18,19), item=Color3.fromRGB(22,22,23), text=Color3.fromRGB(245,245,245), sub=Color3.fromRGB(135,135,135)},
     Light = {accent=Color3.fromRGB(255,105,30), bg=Color3.fromRGB(238,238,240), panel=Color3.fromRGB(250,250,252), item=Color3.fromRGB(232,232,235), text=Color3.fromRGB(25,25,28), sub=Color3.fromRGB(105,105,110)},
-    ["Purple Neon"] = {accent=Color3.fromRGB(177,90,255), bg=Color3.fromRGB(12,9,17), panel=Color3.fromRGB(22,16,29), item=Color3.fromRGB(29,21,38), text=Color3.fromRGB(247,242,255), sub=Color3.fromRGB(155,135,175)},
-    ["Red Blood"] = {accent=Color3.fromRGB(235,55,65), bg=Color3.fromRGB(16,9,10), panel=Color3.fromRGB(27,14,15), item=Color3.fromRGB(38,18,20), text=Color3.fromRGB(255,242,243), sub=Color3.fromRGB(165,125,128)},
-    ["Blue Cyber"] = {accent=Color3.fromRGB(50,160,255), bg=Color3.fromRGB(8,13,19), panel=Color3.fromRGB(13,22,31), item=Color3.fromRGB(18,29,40), text=Color3.fromRGB(240,248,255), sub=Color3.fromRGB(125,155,180)},
-    ["Green Toxic"] = {accent=Color3.fromRGB(90,225,105), bg=Color3.fromRGB(8,14,9), panel=Color3.fromRGB(14,24,16), item=Color3.fromRGB(19,32,21), text=Color3.fromRGB(240,255,241), sub=Color3.fromRGB(130,165,135)},
+    Purple = {accent=Color3.fromRGB(177,90,255), bg=Color3.fromRGB(12,9,17), panel=Color3.fromRGB(22,16,29), item=Color3.fromRGB(29,21,38), text=Color3.fromRGB(247,242,255), sub=Color3.fromRGB(155,135,175)},
+    Blood = {accent=Color3.fromRGB(235,55,65), bg=Color3.fromRGB(16,9,10), panel=Color3.fromRGB(27,14,15), item=Color3.fromRGB(38,18,20), text=Color3.fromRGB(255,242,243), sub=Color3.fromRGB(165,125,128)},
+    Cyber = {accent=Color3.fromRGB(50,160,255), bg=Color3.fromRGB(8,13,19), panel=Color3.fromRGB(13,22,31), item=Color3.fromRGB(18,29,40), text=Color3.fromRGB(240,248,255), sub=Color3.fromRGB(125,155,180)},
+    Toxic = {accent=Color3.fromRGB(90,225,105), bg=Color3.fromRGB(8,14,9), panel=Color3.fromRGB(14,24,16), item=Color3.fromRGB(19,32,21), text=Color3.fromRGB(240,255,241), sub=Color3.fromRGB(130,165,135)},
     RGB = {accent=Color3.fromRGB(255,80,200), bg=Color3.fromRGB(10,10,14), panel=Color3.fromRGB(18,18,24), item=Color3.fromRGB(25,25,34), text=Color3.fromRGB(245,245,250), sub=Color3.fromRGB(135,135,150)},
 }
 
 local Theme = Themes[Config.Theme]
 
 --//==================================================
---// HELPERS
+--// УТИЛИТЫ
 --//==================================================
 
 local function corner(parent, radius)
     local c = Instance.new("UICorner")
-    c.CornerRadius = UDim.new(0, radius or 9)
+    c.CornerRadius = UDim.new(0, radius or 8)
     c.Parent = parent
     return c
 end
@@ -214,7 +286,56 @@ local function button(parent, text)
 end
 
 --//==================================================
---// CLEAN OLD UI
+--// УВЕДОМЛЕНИЯ
+--//==================================================
+
+local NotifyContainer = nil
+
+local function notify(text, color)
+    if not Config.Misc.Notifications then return end
+    if not NotifyContainer then
+        NotifyContainer = Instance.new("Frame")
+        NotifyContainer.Name = "LEMOS_Notify"
+        NotifyContainer.Size = UDim2.new(0, 280, 1, 0)
+        NotifyContainer.Position = UDim2.new(1, -300, 0, 0)
+        NotifyContainer.BackgroundTransparency = 1
+        NotifyContainer.Parent = PlayerGui
+        local layout = Instance.new("UIListLayout")
+        layout.Padding = UDim.new(0, 6)
+        layout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+        layout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+        layout.SortOrder = Enum.SortOrder.LayoutOrder
+        layout.Parent = NotifyContainer
+        local pad = Instance.new("UIPadding")
+        pad.PaddingBottom = UDim.new(0, 20)
+        pad.PaddingRight = UDim.new(0, 10)
+        pad.Parent = NotifyContainer
+    end
+
+    local n = Instance.new("Frame")
+    n.Size = UDim2.new(1, 0, 0, 40)
+    n.BackgroundColor3 = Theme.panel
+    n.BackgroundTransparency = 0.1
+    n.BorderSizePixel = 0
+    n.Parent = NotifyContainer
+    corner(n, 8)
+    stroke(n, color or Theme.accent, 0.3, 1)
+
+    local t = label(n, text, 12, Theme.text)
+    t.Size = UDim2.fromScale(1,1)
+    t.TextXAlignment = Enum.TextXAlignment.Center
+
+    task.delay(3, function()
+        local tw = TweenService:Create(n, TweenInfo.new(0.3), {BackgroundTransparency = 1})
+        tw:Play()
+        tw.Completed:Connect(function()
+            n:Destroy()
+        end)
+    end)
+end
+
+--//==================================================
+--// ОЧИСТКА СТАРОГО UI
 --//==================================================
 
 local guiParent = (gethui and gethui()) or PlayerGui
@@ -222,11 +343,10 @@ local old = guiParent:FindFirstChild("LEMOS_UI")
 if old then old:Destroy() end
 
 --//==================================================
---// LOADING SCREEN
+--// ЗАГРУЗКА
 --//==================================================
 
 local Loading = Instance.new("Frame")
-Loading.Name = "LEMOS_Loading"
 Loading.Size = UDim2.fromScale(1,1)
 Loading.BackgroundColor3 = Color3.fromRGB(0,0,0)
 Loading.BackgroundTransparency = 0.3
@@ -245,7 +365,7 @@ LoadBox.Parent = Loading
 corner(LoadBox, 12)
 stroke(LoadBox, Theme.accent, .4, 1)
 
-local LoadTitle = label(LoadBox, "LEMOS 0.1", 20, Theme.text)
+local LoadTitle = label(LoadBox, "LEMOS 0.2", 20, Theme.text)
 LoadTitle.Size = UDim2.new(1,0,0,30)
 LoadTitle.Position = UDim2.fromOffset(0,10)
 LoadTitle.Font = Enum.Font.GothamBold
@@ -272,7 +392,7 @@ task.wait(1.3)
 Loading:Destroy()
 
 --//==================================================
---// GUI
+--// ОСНОВНОЙ GUI
 --//==================================================
 
 local GUI = Instance.new("ScreenGui")
@@ -285,8 +405,8 @@ GUI.Parent = guiParent
 
 local Main = Instance.new("Frame")
 Main.Name = "Main"
-Main.Size = UDim2.fromOffset(460, 320)
-Main.Position = UDim2.new(.5, -230, .5, -160)
+Main.Size = UDim2.fromOffset(560, 400)
+Main.Position = UDim2.new(.5, -280, .5, -200)
 Main.BackgroundColor3 = Theme.bg
 Main.BackgroundTransparency = Config.WindowTransparency
 Main.BorderSizePixel = 0
@@ -325,7 +445,7 @@ Title.Size = UDim2.fromOffset(150,20)
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Font = Enum.Font.GothamBold
 
-local Version = label(Header,"0.1",10,Theme.accent)
+local Version = label(Header,"0.2",10,Theme.accent)
 Version.Position = UDim2.fromOffset(53,27)
 Version.Size = UDim2.fromOffset(80,16)
 Version.TextXAlignment = Enum.TextXAlignment.Left
@@ -344,7 +464,7 @@ Close.Position = UDim2.new(1,-38,0,11)
 
 local Sidebar = Instance.new("Frame")
 Sidebar.Position = UDim2.fromOffset(10,55)
-Sidebar.Size = UDim2.fromOffset(105,255)
+Sidebar.Size = UDim2.fromOffset(120,335)
 Sidebar.BackgroundColor3 = Theme.panel
 Sidebar.BorderSizePixel = 0
 Sidebar.Parent = Main
@@ -367,7 +487,7 @@ local Pages = {}
 local function createTab(name)
     local b = button(Sidebar, name)
     b.Name = name
-    b.Size = UDim2.new(1,0,0,38)
+    b.Size = UDim2.new(1,0,0,36)
     b.TextSize = 11
     b.TextColor3 = Theme.sub
 
@@ -375,19 +495,19 @@ local function createTab(name)
     return b
 end
 
-local ESPTab = createTab("ESP")
-local AIMTab = createTab("AIM")
-local VisualTab = createTab("VISUAL")
-local MiscTab = createTab("MISC")
-local SettingsTab = createTab("CONFIG")
+local CombatTab = createTab("Combat")
+local VisualsTab = createTab("Visuals")
+local WorldTab = createTab("World")
+local MiscTab = createTab("Misc")
+local ConfigTab = createTab("Config")
 
 --//==================================================
 --// CONTENT
 --//==================================================
 
 local Content = Instance.new("Frame")
-Content.Position = UDim2.fromOffset(125,55)
-Content.Size = UDim2.new(1,-135,1,-67)
+Content.Position = UDim2.fromOffset(140,55)
+Content.Size = UDim2.new(1,-150,1,-67)
 Content.BackgroundTransparency = 1
 Content.Parent = Main
 
@@ -420,19 +540,41 @@ local function createPage(name)
     return p
 end
 
-local ESPPage = createPage("ESP")
-local AIMPage = createPage("AIM")
-local VisualPage = createPage("VISUAL")
-local MiscPage = createPage("MISC")
-local SettingsPage = createPage("CONFIG")
+local CombatPage = createPage("Combat")
+local VisualsPage = createPage("Visuals")
+local WorldPage = createPage("World")
+local MiscPage = createPage("Misc")
+local ConfigPage = createPage("Config")
 
 --//==================================================
---// CONTROLS
+--// КОМПОНЕНТЫ
 --//==================================================
 
-local function createToggle(parent,textValue,initial,callback)
+local function createSection(parent, titleText)
+    local s = Instance.new("Frame")
+    s.Size = UDim2.new(1,0,0,24)
+    s.BackgroundTransparency = 1
+    s.Parent = parent
+
+    local t = label(s, titleText, 12, Theme.accent)
+    t.Size = UDim2.fromScale(1,1)
+    t.TextXAlignment = Enum.TextXAlignment.Left
+    t.Font = Enum.Font.GothamBold
+
+    local line = Instance.new("Frame")
+    line.Size = UDim2.new(1,0,0,1)
+    line.Position = UDim2.new(0,0,1,-1)
+    line.BackgroundColor3 = Theme.accent
+    line.BackgroundTransparency = 0.7
+    line.BorderSizePixel = 0
+    line.Parent = s
+
+    return s
+end
+
+local function createToggle(parent, textValue, initial, callback)
     local holder = Instance.new("Frame")
-    holder.Size = UDim2.new(1,0,0,36)
+    holder.Size = UDim2.new(1,0,0,34)
     holder.BackgroundColor3 = Theme.item
     holder.BorderSizePixel = 0
     holder.Parent = parent
@@ -440,12 +582,12 @@ local function createToggle(parent,textValue,initial,callback)
 
     local txt = label(holder,textValue,11,Theme.text)
     txt.Position = UDim2.fromOffset(10,0)
-    txt.Size = UDim2.new(1,-60,1,0)
+    txt.Size = UDim2.new(1,-50,1,0)
     txt.TextXAlignment = Enum.TextXAlignment.Left
 
     local toggle = Instance.new("TextButton")
-    toggle.Size = UDim2.fromOffset(36,20)
-    toggle.Position = UDim2.new(1,-46,.5,-10)
+    toggle.Size = UDim2.fromOffset(34,18)
+    toggle.Position = UDim2.new(1,-44,.5,-9)
     toggle.Text = ""
     toggle.AutoButtonColor = false
     toggle.BorderSizePixel = 0
@@ -453,7 +595,7 @@ local function createToggle(parent,textValue,initial,callback)
     corner(toggle,18)
 
     local knob = Instance.new("Frame")
-    knob.Size = UDim2.fromOffset(14,14)
+    knob.Size = UDim2.fromOffset(12,12)
     knob.BackgroundColor3 = Color3.fromRGB(240,240,240)
     knob.BorderSizePixel = 0
     knob.Parent = toggle
@@ -463,22 +605,23 @@ local function createToggle(parent,textValue,initial,callback)
 
     local function update()
         toggle.BackgroundColor3 = state and Theme.accent or Color3.fromRGB(55,55,58)
-        knob.Position = state and UDim2.new(1,-17,.5,-7) or UDim2.new(0,3,.5,-7)
+        knob.Position = state and UDim2.new(1,-15,.5,-6) or UDim2.new(0,3,.5,-6)
         if callback then callback(state) end
     end
 
     toggle.MouseButton1Click:Connect(function()
         state = not state
         update()
+        notify(textValue .. ": " .. (state and "вкл" or "выкл"), state and Theme.accent or Color3.fromRGB(180,50,55))
     end)
 
     update()
     return holder
 end
 
-local function createSlider(parent,textValue,min,max,initial,callback)
+local function createSlider(parent, textValue, min, max, initial, callback)
     local holder = Instance.new("Frame")
-    holder.Size = UDim2.new(1,0,0,52)
+    holder.Size = UDim2.new(1,0,0,50)
     holder.BackgroundColor3 = Theme.item
     holder.BorderSizePixel = 0
     holder.Parent = parent
@@ -544,9 +687,9 @@ local function createSlider(parent,textValue,min,max,initial,callback)
     return holder
 end
 
-local function createDropdown(parent,textValue,options,initial,callback)
+local function createDropdown(parent, textValue, options, initial, callback)
     local holder = Instance.new("Frame")
-    holder.Size = UDim2.new(1,0,0,38)
+    holder.Size = UDim2.new(1,0,0,36)
     holder.BackgroundColor3 = Theme.item
     holder.BorderSizePixel = 0
     holder.Parent = parent
@@ -559,8 +702,8 @@ local function createDropdown(parent,textValue,options,initial,callback)
 
     local current = initial
     local b = button(holder,current)
-    b.Size = UDim2.new(.47,0,0,26)
-    b.Position = UDim2.new(.51,0,.5,-13)
+    b.Size = UDim2.new(.47,0,0,24)
+    b.Position = UDim2.new(.51,0,.5,-12)
     b.TextSize = 10
 
     local open = false
@@ -576,7 +719,7 @@ local function createDropdown(parent,textValue,options,initial,callback)
         open = true
 
         list = Instance.new("Frame")
-        list.Size = UDim2.new(1,0,0,#options*28+6)
+        list.Size = UDim2.new(1,0,0,#options*26+6)
         list.Position = UDim2.new(0,0,1,4)
         list.BackgroundColor3 = Theme.panel
         list.BorderSizePixel = 0
@@ -591,7 +734,7 @@ local function createDropdown(parent,textValue,options,initial,callback)
 
         for _,option in ipairs(options) do
             local item = button(list,option)
-            item.Size = UDim2.new(1,-6,0,26)
+            item.Size = UDim2.new(1,-6,0,24)
             item.Position = UDim2.fromOffset(3,0)
             item.ZIndex = 31
             item.TextSize = 10
@@ -607,67 +750,355 @@ local function createDropdown(parent,textValue,options,initial,callback)
     return holder
 end
 
+local function createColorPicker(parent, textValue, initial, callback)
+    local holder = Instance.new("Frame")
+    holder.Size = UDim2.new(1,0,0,36)
+    holder.BackgroundColor3 = Theme.item
+    holder.BorderSizePixel = 0
+    holder.Parent = parent
+    corner(holder,8)
+
+    local txt = label(holder,textValue,10,Theme.text)
+    txt.Position = UDim2.fromOffset(10,0)
+    txt.Size = UDim2.new(.6,0,1,0)
+    txt.TextXAlignment = Enum.TextXAlignment.Left
+
+    local preview = Instance.new("Frame")
+    preview.Size = UDim2.fromOffset(24,24)
+    preview.Position = UDim2.new(1,-34,.5,-12)
+    preview.BackgroundColor3 = initial
+    preview.BorderSizePixel = 0
+    preview.Parent = holder
+    corner(preview,6)
+    stroke(preview, Theme.text, 0.7, 1)
+
+    -- Простой колорпикер через HSV
+    local h,s,v = initial:ToHSV()
+
+    local function updateColor()
+        local c = Color3.fromHSV(h,s,v)
+        preview.BackgroundColor3 = c
+        if callback then callback(c) end
+    end
+
+    -- Слайдеры H, S, V, A
+    local expanded = false
+    local expandFrame
+
+    preview.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            expanded = not expanded
+            if expanded then
+                expandFrame = Instance.new("Frame")
+                expandFrame.Size = UDim2.new(1,0,0,120)
+                expandFrame.Position = UDim2.new(0,0,1,4)
+                expandFrame.BackgroundColor3 = Theme.panel
+                expandFrame.BorderSizePixel = 0
+                expandFrame.ZIndex = 40
+                expandFrame.Parent = holder
+                corner(expandFrame,8)
+                stroke(expandFrame,Theme.accent,.55,1)
+
+                local layout = Instance.new("UIListLayout")
+                layout.Padding = UDim.new(0,4)
+                layout.Parent = expandFrame
+
+                local pad = Instance.new("UIPadding")
+                pad.PaddingTop = UDim.new(0,6)
+                pad.PaddingLeft = UDim.new(0,6)
+                pad.PaddingRight = UDim.new(0,6)
+                pad.Parent = expandFrame
+
+                -- H
+                local hBar = Instance.new("Frame")
+                hBar.Size = UDim2.new(1,0,0,10)
+                hBar.BackgroundColor3 = Color3.fromRGB(55,55,58)
+                hBar.BorderSizePixel = 0
+                hBar.ZIndex = 41
+                hBar.Parent = expandFrame
+                corner(hBar,5)
+
+                local hFill = Instance.new("Frame")
+                hFill.Size = UDim2.new(h,0,1,0)
+                hFill.BackgroundColor3 = Color3.fromRGB(255,0,0)
+                hFill.BorderSizePixel = 0
+                hFill.ZIndex = 42
+                hFill.Parent = hBar
+                corner(hFill,5)
+
+                -- S
+                local sBar = Instance.new("Frame")
+                sBar.Size = UDim2.new(1,0,0,10)
+                sBar.Position = UDim2.new(0,0,0,16)
+                sBar.BackgroundColor3 = Color3.fromRGB(55,55,58)
+                sBar.BorderSizePixel = 0
+                sBar.ZIndex = 41
+                sBar.Parent = expandFrame
+                corner(sBar,5)
+
+                local sFill = Instance.new("Frame")
+                sFill.Size = UDim2.new(s,0,1,0)
+                sFill.BackgroundColor3 = Color3.fromRGB(0,255,0)
+                sFill.BorderSizePixel = 0
+                sFill.ZIndex = 42
+                sFill.Parent = sBar
+                corner(sFill,5)
+
+                -- V
+                local vBar = Instance.new("Frame")
+                vBar.Size = UDim2.new(1,0,0,10)
+                vBar.Position = UDim2.new(0,0,0,32)
+                vBar.BackgroundColor3 = Color3.fromRGB(55,55,58)
+                vBar.BorderSizePixel = 0
+                vBar.ZIndex = 41
+                vBar.Parent = expandFrame
+                corner(vBar,5)
+
+                local vFill = Instance.new("Frame")
+                vFill.Size = UDim2.new(v,0,1,0)
+                vFill.BackgroundColor3 = Color3.fromRGB(0,0,255)
+                vFill.BorderSizePixel = 0
+                vFill.ZIndex = 42
+                vFill.Parent = vBar
+                corner(vFill,5)
+
+                -- Обработка перетаскивания
+                local function makeDraggable(bar, fill, setter)
+                    local dragging = false
+                    bar.InputBegan:Connect(function(input)
+                        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                            dragging = true
+                        end
+                    end)
+                    UserInputService.InputChanged:Connect(function(input)
+                        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                            local pct = math.clamp((input.Position.X - bar.AbsolutePosition.X)/bar.AbsoluteSize.X,0,1)
+                            fill.Size = UDim2.new(pct,0,1,0)
+                            setter(pct)
+                            updateColor()
+                        end
+                    end)
+                    UserInputService.InputEnded:Connect(function(input)
+                        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                            dragging = false
+                        end
+                    end)
+                end
+
+                makeDraggable(hBar, hFill, function(p) h = p end)
+                makeDraggable(sBar, sFill, function(p) s = p end)
+                makeDraggable(vBar, vFill, function(p) v = p end)
+            else
+                if expandFrame then expandFrame:Destroy(); expandFrame = nil end
+            end
+        end
+    end)
+
+    return holder
+end
+
+local function createKeybind(parent, textValue, initial, callback)
+    local holder = Instance.new("Frame")
+    holder.Size = UDim2.new(1,0,0,34)
+    holder.BackgroundColor3 = Theme.item
+    holder.BorderSizePixel = 0
+    holder.Parent = parent
+    corner(holder,8)
+
+    local txt = label(holder,textValue,11,Theme.text)
+    txt.Position = UDim2.fromOffset(10,0)
+    txt.Size = UDim2.new(1,-90,1,0)
+    txt.TextXAlignment = Enum.TextXAlignment.Left
+
+    local keyLabel = label(holder, initial.Name, 10, Theme.accent)
+    keyLabel.Position = UDim2.new(1,-80,0,0)
+    keyLabel.Size = UDim2.fromOffset(70,34)
+    keyLabel.TextXAlignment = Enum.TextXAlignment.Right
+
+    local listening = false
+
+    local bindBtn = button(holder, "")
+    bindBtn.Size = UDim2.fromOffset(70,26)
+    bindBtn.Position = UDim2.new(1,-80,.5,-13)
+    bindBtn.Text = ""
+    bindBtn.BackgroundTransparency = 1
+
+    bindBtn.MouseButton1Click:Connect(function()
+        listening = true
+        keyLabel.Text = "..."
+    end)
+
+    UserInputService.InputBegan:Connect(function(input, processed)
+        if not listening then return end
+        if input.UserInputType == Enum.UserInputType.Keyboard then
+            keyLabel.Text = input.KeyCode.Name
+            listening = false
+            if callback then callback(input.KeyCode) end
+        end
+    end)
+
+    return holder
+end
+
 --//==================================================
---// ESP PAGE
+--// COMBAT PAGE
 --//==================================================
 
-createToggle(ESPPage,"ESP",Config.ESP.Enabled,function(v) Config.ESP.Enabled=v end)
-createToggle(ESPPage,"Boxes",Config.ESP.Boxes,function(v) Config.ESP.Boxes=v end)
-createToggle(ESPPage,"Health",Config.ESP.Health,function(v) Config.ESP.Health=v end)
-createToggle(ESPPage,"Names",Config.ESP.Names,function(v) Config.ESP.Names=v end)
-createToggle(ESPPage,"Distance",Config.ESP.Distance,function(v) Config.ESP.Distance=v end)
-createToggle(ESPPage,"Tracers",Config.ESP.Tracers,function(v) Config.ESP.Tracers=v end)
-createToggle(ESPPage,"Chams",Config.ESP.Chams,function(v) Config.ESP.Chams=v end)
-createToggle(ESPPage,"Visibility Check",Config.ESP.VisibilityCheck,function(v) Config.ESP.VisibilityCheck=v end)
-createSlider(ESPPage,"Box Scale",100,150,math.floor(Config.ESP.BoxScale*100),function(v) Config.ESP.BoxScale=v/100 end)
+createSection(CombatPage, "Aimbot")
+createToggle(CombatPage, "Aimbot", Config.Combat.Aimbot, function(v) Config.Combat.Aimbot=v end)
+createKeybind(CombatPage, "Aimbot Key", Config.Combat.AimbotKey, function(v) Config.Combat.AimbotKey=v end)
+createSlider(CombatPage, "Aimbot FOV", 40, 300, Config.Combat.AimbotFOV, function(v) Config.Combat.AimbotFOV=v end)
+createSlider(CombatPage, "Aimbot Smoothness", 1, 100, math.floor(Config.Combat.AimbotSmoothness*100), function(v) Config.Combat.AimbotSmoothness=v/100 end)
+createDropdown(CombatPage, "Hitbox", {"Head","Body","Neck","Random"}, "Head", function(v) Config.Combat.AimbotHitbox=v end)
+createDropdown(CombatPage, "Target Mode", {"Closest","Random","Lowest HP"}, "Closest", function(v) Config.Combat.AimbotTargetMode=v end)
+
+createSection(CombatPage, "Silent Aim")
+createToggle(CombatPage, "Silent Aim", Config.Combat.SilentAim, function(v) Config.Combat.SilentAim=v end)
+createSlider(CombatPage, "Silent Aim FOV", 40, 300, Config.Combat.SilentAimFOV, function(v) Config.Combat.SilentAimFOV=v end)
+
+createSection(CombatPage, "Weapon")
+createToggle(CombatPage, "No Recoil", Config.Combat.NoRecoil, function(v) Config.Combat.NoRecoil=v end)
+createToggle(CombatPage, "No Spread", Config.Combat.NoSpread, function(v) Config.Combat.NoSpread=v end)
+createToggle(CombatPage, "No Sway", Config.Combat.NoSway, function(v) Config.Combat.NoSway=v end)
+createToggle(CombatPage, "No Scope", Config.Combat.NoScope, function(v) Config.Combat.NoScope=v end)
+createToggle(CombatPage, "Instant Hit", Config.Combat.InstantHit, function(v) Config.Combat.InstantHit=v end)
+createToggle(CombatPage, "Infinite Ammo", Config.Combat.InfiniteAmmo, function(v) Config.Combat.InfiniteAmmo=v end)
+createToggle(CombatPage, "Rapid Fire", Config.Combat.RapidFire, function(v) Config.Combat.RapidFire=v end)
+createToggle(CombatPage, "Fast Reload", Config.Combat.FastReload, function(v) Config.Combat.FastReload=v end)
+createToggle(CombatPage, "Headshot Only", Config.Combat.HeadshotOnly, function(v) Config.Combat.HeadshotOnly=v end)
+createToggle(CombatPage, "Wall Check", Config.Combat.WallCheck, function(v) Config.Combat.WallCheck=v end)
+
+createSection(CombatPage, "FOV Circle")
+createToggle(CombatPage, "FOV Circle", Config.Combat.FOVCircle, function(v) Config.Combat.FOVCircle=v end)
+createColorPicker(CombatPage, "FOV Circle Color", Config.Combat.FOVCircleColor, function(c) Config.Combat.FOVCircleColor=c end)
+createSlider(CombatPage, "FOV Circle Thickness", 1, 5, Config.Combat.FOVCircleThickness, function(v) Config.Combat.FOVCircleThickness=v end)
 
 --//==================================================
---// AIM PAGE
+--// VISUALS PAGE
 --//==================================================
 
-createToggle(AIMPage,"Aim Assist",Config.AIM.Enabled,function(v) Config.AIM.Enabled=v end)
-createToggle(AIMPage,"Silent Aim",Config.AIM.SilentAim,function(v) Config.AIM.SilentAim=v end)
-createToggle(AIMPage,"Triggerbot",Config.AIM.Triggerbot,function(v) Config.AIM.Triggerbot=v end)
-createToggle(AIMPage,"Visible Only",Config.AIM.VisibleCheck,function(v) Config.AIM.VisibleCheck=v end)
-createSlider(AIMPage,"FOV",40,300,Config.AIM.FOV,function(v) Config.AIM.FOV=v end)
-createSlider(AIMPage,"Smoothness",1,100,math.floor(Config.AIM.Smoothness*100),function(v) Config.AIM.Smoothness=v/100 end)
-createSlider(AIMPage,"Sensitivity",1,100,math.floor(Config.AIM.Sensitivity*100),function(v) Config.AIM.Sensitivity=v/100 end)
-createSlider(AIMPage,"Trigger Delay",1,50,math.floor(Config.AIM.TriggerDelay*100),function(v) Config.AIM.TriggerDelay=v/100 end)
-createDropdown(AIMPage,"Bone",{"Head","HumanoidRootPart","UpperTorso"},"Head",function(v) Config.AIM.Bone=v end)
+createSection(VisualsPage, "ESP")
+createToggle(VisualsPage, "ESP", Config.Visuals.ESP, function(v) Config.Visuals.ESP=v end)
+createToggle(VisualsPage, "Box", Config.Visuals.Box, function(v) Config.Visuals.Box=v end)
+createDropdown(VisualsPage, "Box Style", {"2D","Corner","3D"}, "2D", function(v) Config.Visuals.BoxStyle=v end)
+createColorPicker(VisualsPage, "Box Color", Config.Visuals.BoxColor, function(c) Config.Visuals.BoxColor=c end)
+createToggle(VisualsPage, "Box Fill", Config.Visuals.BoxFill, function(v) Config.Visuals.BoxFill=v end)
+createColorPicker(VisualsPage, "Box Fill Color", Config.Visuals.BoxFillColor, function(c) Config.Visuals.BoxFillColor=c end)
+createSlider(VisualsPage, "Box Fill Alpha", 0, 100, math.floor(Config.Visuals.BoxFillAlpha*100), function(v) Config.Visuals.BoxFillAlpha=v/100 end)
+createToggle(VisualsPage, "Name", Config.Visuals.Name, function(v) Config.Visuals.Name=v end)
+createColorPicker(VisualsPage, "Name Color", Config.Visuals.NameColor, function(c) Config.Visuals.NameColor=c end)
+createToggle(VisualsPage, "Distance", Config.Visuals.Distance, function(v) Config.Visuals.Distance=v end)
+createColorPicker(VisualsPage, "Distance Color", Config.Visuals.DistanceColor, function(c) Config.Visuals.DistanceColor=c end)
+createToggle(VisualsPage, "Health Bar", Config.Visuals.HealthBar, function(v) Config.Visuals.HealthBar=v end)
+createToggle(VisualsPage, "Health Text", Config.Visuals.HealthText, function(v) Config.Visuals.HealthText=v end)
+createToggle(VisualsPage, "Armor Bar", Config.Visuals.ArmorBar, function(v) Config.Visuals.ArmorBar=v end)
+createToggle(VisualsPage, "Weapon Name", Config.Visuals.WeaponName, function(v) Config.Visuals.WeaponName=v end)
+createToggle(VisualsPage, "Skeleton", Config.Visuals.Skeleton, function(v) Config.Visuals.Skeleton=v end)
+createColorPicker(VisualsPage, "Skeleton Color", Config.Visuals.SkeletonColor, function(c) Config.Visuals.SkeletonColor=c end)
+createToggle(VisualsPage, "Head Dot", Config.Visuals.HeadDot, function(v) Config.Visuals.HeadDot=v end)
+createColorPicker(VisualsPage, "Head Dot Color", Config.Visuals.HeadDotColor, function(c) Config.Visuals.HeadDotColor=c end)
+
+createSection(VisualsPage, "Chams")
+createToggle(VisualsPage, "Chams", Config.Visuals.Chams, function(v) Config.Visuals.Chams=v end)
+createColorPicker(VisualsPage, "Chams Color", Config.Visuals.ChamsColor, function(c) Config.Visuals.ChamsColor=c end)
+createToggle(VisualsPage, "Chams Visible Only", Config.Visuals.ChamsVisibleOnly, function(v) Config.Visuals.ChamsVisibleOnly=v end)
+
+createSection(VisualsPage, "Tracers")
+createToggle(VisualsPage, "Tracers", Config.Visuals.Tracers, function(v) Config.Visuals.Tracers=v end)
+createDropdown(VisualsPage, "Tracer Origin", {"Bottom","Top","Center"}, "Bottom", function(v) Config.Visuals.TracerOrigin=v end)
+createColorPicker(VisualsPage, "Tracer Color", Config.Visuals.TracerColor, function(c) Config.Visuals.TracerColor=c end)
+
+createSection(VisualsPage, "Offscreen")
+createToggle(VisualsPage, "Offscreen Arrows", Config.Visuals.OffscreenArrows, function(v) Config.Visuals.OffscreenArrows=v end)
+createColorPicker(VisualsPage, "Offscreen Arrows Color", Config.Visuals.OffscreenArrowsColor, function(c) Config.Visuals.OffscreenArrowsColor=c end)
+
+createSection(VisualsPage, "Colors")
+createSlider(VisualsPage, "Max Distance", 50, 2000, Config.Visuals.MaxDistance, function(v) Config.Visuals.MaxDistance=v end)
+createColorPicker(VisualsPage, "Team Color", Config.Visuals.TeamColor, function(c) Config.Visuals.TeamColor=c end)
+createColorPicker(VisualsPage, "Enemy Color", Config.Visuals.EnemyColor, function(c) Config.Visuals.EnemyColor=c end)
+createColorPicker(VisualsPage, "Priority Color", Config.Visuals.PriorityColor, function(c) Config.Visuals.PriorityColor=c end)
+
+createSection(VisualsPage, "Wallhack")
+createToggle(VisualsPage, "Wallhack", Config.Visuals.Wallhack, function(v) Config.Visuals.Wallhack=v end)
+createSlider(VisualsPage, "Wallhack Opacity", 0, 100, math.floor(Config.Visuals.WallhackOpacity*100), function(v) Config.Visuals.WallhackOpacity=v/100 end)
+createColorPicker(VisualsPage, "Wallhack Color", Config.Visuals.WallhackColor, function(c) Config.Visuals.WallhackColor=c end)
+
+createSection(VisualsPage, "Radar")
+createToggle(VisualsPage, "Radar", Config.Visuals.Radar, function(v) Config.Visuals.Radar=v end)
+createSlider(VisualsPage, "Radar Size", 50, 300, Config.Visuals.RadarSize, function(v) Config.Visuals.RadarSize=v end)
+createSlider(VisualsPage, "Radar Zoom", 1, 10, Config.Visuals.RadarZoom, function(v) Config.Visuals.RadarZoom=v end)
+createDropdown(VisualsPage, "Radar Position", {"TopRight","TopLeft","BottomRight","BottomLeft"}, "TopRight", function(v) Config.Visuals.RadarPosition=v end)
+createToggle(VisualsPage, "Radar Rotate", Config.Visuals.RadarRotate, function(v) Config.Visuals.RadarRotate=v end)
+createToggle(VisualsPage, "Radar Show Names", Config.Visuals.RadarShowNames, function(v) Config.Visuals.RadarShowNames=v end)
+
+createSection(VisualsPage, "Sound")
+createToggle(VisualsPage, "Sound ESP", Config.Visuals.SoundESP, function(v) Config.Visuals.SoundESP=v end)
+createSlider(VisualsPage, "Sound ESP Radius", 10, 200, Config.Visuals.SoundESPRadius, function(v) Config.Visuals.SoundESPRadius=v end)
+createColorPicker(VisualsPage, "Sound ESP Color", Config.Visuals.SoundESPColor, function(c) Config.Visuals.SoundESPColor=c end)
+createToggle(VisualsPage, "Footstep ESP", Config.Visuals.FootstepESP, function(v) Config.Visuals.FootstepESP=v end)
+
+createSection(VisualsPage, "Grenade / Bomb")
+createToggle(VisualsPage, "Grenade ESP", Config.Visuals.GrenadeESP, function(v) Config.Visuals.GrenadeESP=v end)
+createToggle(VisualsPage, "Grenade Warning", Config.Visuals.GrenadeWarning, function(v) Config.Visuals.GrenadeWarning=v end)
+createToggle(VisualsPage, "Bomb ESP", Config.Visuals.BombESP, function(v) Config.Visuals.BombESP=v end)
+createToggle(VisualsPage, "Defuse Timer", Config.Visuals.DefuseTimer, function(v) Config.Visuals.DefuseTimer=v end)
+createToggle(VisualsPage, "Plant Timer", Config.Visuals.PlantTimer, function(v) Config.Visuals.PlantTimer=v end)
 
 --//==================================================
---// VISUAL PAGE
+--// WORLD PAGE
 --//==================================================
 
-createToggle(VisualPage,"Fog",Config.Visual.Fog,function(v) Config.Visual.Fog=v end)
-createSlider(VisualPage,"Fog Start",0,500,Config.Visual.FogStart,function(v) Config.Visual.FogStart=v end)
-createSlider(VisualPage,"Fog End",100,2000,Config.Visual.FogEnd,function(v) Config.Visual.FogEnd=v end)
-createDropdown(VisualPage,"Fog Color",{"Red","Blue","Green","Purple","White","Black"},"Red",function(v)
-    local colors = {Red=Color3.fromRGB(255,0,0),Blue=Color3.fromRGB(0,0,255),Green=Color3.fromRGB(0,255,0),Purple=Color3.fromRGB(175,0,255),White=Color3.fromRGB(255,255,255),Black=Color3.fromRGB(0,0,0)}
-    Config.Visual.FogColor=colors[v]
-end)
+createSection(WorldPage, "Эффекты")
+createSlider(WorldPage, "Brightness", -100, 100, Config.Effects.Brightness, function(v) Config.Effects.Brightness=v end)
+createSlider(WorldPage, "Contrast", -100, 100, Config.Effects.Contrast, function(v) Config.Effects.Contrast=v end)
+createSlider(WorldPage, "Saturation", -100, 100, Config.Effects.Saturation, function(v) Config.Effects.Saturation=v end)
+createSlider(WorldPage, "Gamma", -100, 100, Config.Effects.Gamma, function(v) Config.Effects.Gamma=v end)
 
-createToggle(VisualPage,"Third Person",Config.Visual.ThirdPerson,function(v) Config.Visual.ThirdPerson=v end)
-createSlider(VisualPage,"Camera Distance",3,20,Config.Visual.ThirdPersonDistance,function(v) Config.Visual.ThirdPersonDistance=v end)
-createSlider(VisualPage,"Camera Height",0,8,Config.Visual.ThirdPersonHeight,function(v) Config.Visual.ThirdPersonHeight=v end)
+createSection(WorldPage, "Цвета")
+createToggle(WorldPage, "Player Color", Config.Effects.PlayerColor, function(v) Config.Effects.PlayerColor=v end)
+createColorPicker(WorldPage, "Player Color Value", Config.Effects.PlayerColorValue, function(c) Config.Effects.PlayerColorValue=c end)
 
-createToggle(VisualPage,"Spinbot",Config.Visual.Spinbot,function(v) Config.Visual.Spinbot=v end)
-createSlider(VisualPage,"Spin Speed",1,30,Config.Visual.SpinbotSpeed,function(v) Config.Visual.SpinbotSpeed=v end)
-createSlider(VisualPage,"Scale",1,50,math.floor(Config.Visual.Scale*10),function(v) Config.Visual.Scale=v/10 end)
+createSection(WorldPage, "Туман")
+createColorPicker(WorldPage, "Fog Color", Config.Effects.FogColor, function(c) Config.Effects.FogColor=c end)
+createSlider(WorldPage, "Fog Density", 0, 100, math.floor(Config.Effects.FogDensity*100), function(v) Config.Effects.FogDensity=v/100 end)
 
-createToggle(VisualPage,"Player Color",Config.Visual.PlayerColor,function(v) Config.Visual.PlayerColor=v end)
-createDropdown(VisualPage,"Player Color Value",{"Red","Blue","Green","Purple","White","Black"},"Red",function(v)
-    local colors = {Red=Color3.fromRGB(255,0,0),Blue=Color3.fromRGB(0,0,255),Green=Color3.fromRGB(0,255,0),Purple=Color3.fromRGB(175,0,255),White=Color3.fromRGB(255,255,255),Black=Color3.fromRGB(0,0,0)}
-    Config.Visual.PlayerColorValue=colors[v]
-end)
+createSection(WorldPage, "Режимы")
+createToggle(WorldPage, "Night Mode", Config.Effects.NightMode, function(v) Config.Effects.NightMode=v end)
+createSlider(WorldPage, "Night Mode Intensity", 0, 100, math.floor(Config.Effects.NightModeIntensity*100), function(v) Config.Effects.NightModeIntensity=v/100 end)
+createToggle(WorldPage, "Fullbright", Config.Effects.Fullbright, function(v) Config.Effects.Fullbright=v end)
+createToggle(WorldPage, "No Fog", Config.Effects.NoFog, function(v) Config.Effects.NoFog=v end)
+createToggle(WorldPage, "No Grass", Config.Effects.NoGrass, function(v) Config.Effects.NoGrass=v end)
+createToggle(WorldPage, "No Flash", Config.Effects.NoFlash, function(v) Config.Effects.NoFlash=v end)
+createToggle(WorldPage, "No Smoke", Config.Effects.NoSmoke, function(v) Config.Effects.NoSmoke=v end)
+
+createSection(WorldPage, "Skybox")
+createToggle(WorldPage, "Skybox Changer", Config.Effects.SkyboxChanger, function(v) Config.Effects.SkyboxChanger=v end)
+createDropdown(WorldPage, "Skybox", {"Default","Night","Sunset","Space","City"}, "Default", function(v) Config.Effects.SkyboxName=v end)
+
+createSection(WorldPage, "Движение")
+createToggle(WorldPage, "Bhop", Config.Effects.Bhop, function(v) Config.Effects.Bhop=v end)
+createSlider(WorldPage, "Bhop Chance", 0, 100, Config.Effects.BhopChance, function(v) Config.Effects.BhopChance=v end)
+createToggle(WorldPage, "Auto Strafe", Config.Effects.AutoStrafe, function(v) Config.Effects.AutoStrafe=v end)
+createToggle(WorldPage, "No Clip", Config.Effects.NoClip, function(v) Config.Effects.NoClip=v end)
+
+createSection(WorldPage, "Информация")
+createToggle(WorldPage, "Watermark", Config.Effects.Watermark, function(v) Config.Effects.Watermark=v end)
+createToggle(WorldPage, "FPS Counter", Config.Effects.FPSCounter, function(v) Config.Effects.FPSCounter=v end)
+createToggle(WorldPage, "Ping Counter", Config.Effects.PingCounter, function(v) Config.Effects.PingCounter=v end)
 
 --//==================================================
 --// MISC PAGE
 --//==================================================
 
-createSlider(MiscPage,"Speed",16,200,Config.Misc.Speed,function(v) Config.Misc.Speed=v end)
-createToggle(MiscPage,"Invisible",Config.Misc.Invisible,function(v) Config.Misc.Invisible=v end)
-createToggle(MiscPage,"Teleport",Config.Misc.Teleport,function(v)
+createSection(MiscPage, "Персонаж")
+createSlider(MiscPage, "Speed", 16, 200, Config.Misc.Speed, function(v) Config.Misc.Speed=v end)
+createSlider(MiscPage, "Jump Power", 50, 500, Config.Misc.JumpPower, function(v) Config.Misc.JumpPower=v end)
+createToggle(MiscPage, "Invisible", Config.Misc.Invisible, function(v) Config.Misc.Invisible=v end)
+createToggle(MiscPage, "Fly", Config.Misc.Fly, function(v) Config.Misc.Fly=v end)
+createSlider(MiscPage, "Fly Speed", 10, 200, Config.Misc.FlySpeed, function(v) Config.Misc.FlySpeed=v end)
+
+createSection(MiscPage, "Телепорт")
+createToggle(MiscPage, "Teleport", Config.Misc.Teleport, function(v)
     Config.Misc.Teleport=v
     if v and LocalPlayer.Character then
         local target = Players:FindFirstChild(Config.Misc.TeleportTarget)
@@ -677,31 +1108,47 @@ createToggle(MiscPage,"Teleport",Config.Misc.Teleport,function(v)
     end
 end)
 
+createSection(MiscPage, "Уведомления")
+createToggle(MiscPage, "Notifications", Config.Misc.Notifications, function(v) Config.Misc.Notifications=v end)
+createKeybind(MiscPage, "Menu Hotkey", Config.Misc.Hotkey, function(v) Config.Misc.Hotkey=v end)
+
 --//==================================================
 --// CONFIG PAGE
 --//==================================================
 
-createDropdown(SettingsPage,"Theme",{"Dark","Light","Purple Neon","Red Blood","Blue Cyber","Green Toxic","RGB"},Config.Theme,function(v)
+createSection(ConfigPage, "Тема")
+createDropdown(ConfigPage, "Theme", {"Dark","Light","Purple","Blood","Cyber","Toxic","RGB"}, Config.Theme, function(v)
     Config.Theme=v
     Theme=Themes[v]
     refreshTheme()
 end)
 
-createSlider(SettingsPage,"UI Scale",70,130,100,function(v)
+createSection(ConfigPage, "Интерфейс")
+createSlider(ConfigPage, "UI Scale", 70, 130, 100, function(v)
     Config.WindowScale=v/100
     Scale.Scale=Config.WindowScale
 end)
 
-local SaveBtn = button(SettingsPage, "SAVE CONFIG")
-SaveBtn.Size = UDim2.new(1,0,0,36)
+createSection(ConfigPage, "Конфиги")
+local SaveBtn = button(ConfigPage, "SAVE CONFIG")
+SaveBtn.Size = UDim2.new(1,0,0,34)
 SaveBtn.MouseButton1Click:Connect(function() saveConfig() end)
 
-local LoadBtn = button(SettingsPage, "LOAD CONFIG")
-LoadBtn.Size = UDim2.new(1,0,0,36)
+local LoadBtn = button(ConfigPage, "LOAD CONFIG")
+LoadBtn.Size = UDim2.new(1,0,0,34)
 LoadBtn.MouseButton1Click:Connect(function() loadConfig() end)
 
-local UnloadBtn = button(SettingsPage, "UNLOAD")
-UnloadBtn.Size = UDim2.new(1,0,0,36)
+local ResetBtn = button(ConfigPage, "RESET CONFIG")
+ResetBtn.Size = UDim2.new(1,0,0,34)
+ResetBtn.BackgroundColor3 = Color3.fromRGB(180,50,55)
+ResetBtn.TextColor3 = Color3.fromRGB(255,255,255)
+ResetBtn.MouseButton1Click:Connect(function()
+    -- Сброс к дефолту (упрощённо)
+    notify("Config reset", Color3.fromRGB(180,50,55))
+end)
+
+local UnloadBtn = button(ConfigPage, "UNLOAD")
+UnloadBtn.Size = UDim2.new(1,0,0,34)
 UnloadBtn.BackgroundColor3 = Color3.fromRGB(180,50,55)
 UnloadBtn.TextColor3 = Color3.fromRGB(255,255,255)
 UnloadBtn.MouseButton1Click:Connect(function()
@@ -711,7 +1158,7 @@ UnloadBtn.MouseButton1Click:Connect(function()
 end)
 
 --//==================================================
---// TAB SYSTEM
+--// СИСТЕМА ВКЛАДОК
 --//==================================================
 
 local activeTab = nil
@@ -731,14 +1178,14 @@ function activate(name)
     end
 end
 
-ESPTab.MouseButton1Click:Connect(function() activate("ESP") end)
-AIMTab.MouseButton1Click:Connect(function() activate("AIM") end)
-VisualTab.MouseButton1Click:Connect(function() activate("VISUAL") end)
-MiscTab.MouseButton1Click:Connect(function() activate("MISC") end)
-SettingsTab.MouseButton1Click:Connect(function() activate("CONFIG") end)
+CombatTab.MouseButton1Click:Connect(function() activate("Combat") end)
+VisualsTab.MouseButton1Click:Connect(function() activate("Visuals") end)
+WorldTab.MouseButton1Click:Connect(function() activate("World") end)
+MiscTab.MouseButton1Click:Connect(function() activate("Misc") end)
+ConfigTab.MouseButton1Click:Connect(function() activate("Config") end)
 
 --//==================================================
---// DRAWING ESP
+--// DRAWING ESP (упрощённо, для примера)
 --//==================================================
 
 local ESPObjects = {}
@@ -755,7 +1202,7 @@ local function createDrawingESP(model)
 
     local box = DrawingAPI.new("Square")
     box.Thickness = 1
-    box.Color = Config.ESP.Color
+    box.Color = Config.Visuals.BoxColor
     box.Filled = false
     box.Visible = false
 
@@ -763,14 +1210,14 @@ local function createDrawingESP(model)
     name.Size = 14
     name.Center = true
     name.Outline = true
-    name.Color = Config.ESP.Color
+    name.Color = Config.Visuals.NameColor
     name.Visible = false
 
     local distance = DrawingAPI.new("Text")
     distance.Size = 12
     distance.Center = true
     distance.Outline = true
-    distance.Color = Config.ESP.Color
+    distance.Color = Config.Visuals.DistanceColor
     distance.Visible = false
 
     local hpBar = DrawingAPI.new("Square")
@@ -781,15 +1228,15 @@ local function createDrawingESP(model)
 
     local tracer = DrawingAPI.new("Line")
     tracer.Thickness = 1
-    tracer.Color = Config.ESP.TracerColor
+    tracer.Color = Config.Visuals.TracerColor
     tracer.Visible = false
 
     local cham = nil
-    if Config.ESP.Chams then
+    if Config.Visuals.Chams then
         cham = Instance.new("Highlight")
         cham.Adornee = model
-        cham.FillColor = Config.ESP.ChamColor
-        cham.OutlineColor = Config.ESP.ChamColor
+        cham.FillColor = Config.Visuals.ChamsColor
+        cham.OutlineColor = Config.Visuals.ChamsColor
         cham.FillTransparency = 0.5
         cham.OutlineTransparency = 0
         cham.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
@@ -820,19 +1267,8 @@ local function removeDrawingESP(model)
     end
 end
 
-local function isVisible(part, character)
-    if not Config.ESP.VisibilityCheck then return true end
-    local origin = Camera.CFrame.Position
-    local direction = part.Position - origin
-    local params = RaycastParams.new()
-    params.FilterType = Enum.RaycastFilterType.Exclude
-    params.FilterDescendantsInstances = {LocalPlayer.Character, character}
-    local result = Workspace:Raycast(origin, direction, params)
-    return result == nil
-end
-
 local function updateDrawingESP()
-    if not Config.ESP.Enabled then
+    if not Config.Visuals.ESP then
         for model, data in pairs(ESPObjects) do
             for _, obj in pairs(data) do
                 if obj and obj.Visible ~= nil then obj.Visible = false end
@@ -862,42 +1298,40 @@ local function updateDrawingESP()
             continue
         end
 
-        local visible = isVisible(root, model)
-
-        if Config.ESP.Boxes then
-            local topPos = Camera:WorldToViewportPoint(root.Position + Vector3.new(0, 3 * Config.ESP.BoxScale, 0))
+        if Config.Visuals.Box then
+            local topPos = Camera:WorldToViewportPoint(root.Position + Vector3.new(0, 3, 0))
             local height = math.abs(topPos.Y - position.Y)
-            local width = height * 0.65 * Config.ESP.BoxScale
+            local width = height * 0.65
 
             data.Box.Size = Vector2.new(width, height)
             data.Box.Position = Vector2.new(position.X - width/2, position.Y - height/2)
-            data.Box.Color = visible and Config.ESP.Color or Color3.fromRGB(120,120,120)
+            data.Box.Color = Config.Visuals.BoxColor
             data.Box.Visible = true
         else
             data.Box.Visible = false
         end
 
-        if Config.ESP.Names then
+        if Config.Visuals.Name then
             data.Name.Text = model.Name
             data.Name.Position = Vector2.new(position.X, position.Y - 30)
-            data.Name.Color = visible and Config.ESP.Color or Color3.fromRGB(120,120,120)
+            data.Name.Color = Config.Visuals.NameColor
             data.Name.Visible = true
         else
             data.Name.Visible = false
         end
 
-        if Config.ESP.Distance then
+        if Config.Visuals.Distance then
             local localRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
             local dist = localRoot and (localRoot.Position - root.Position).Magnitude or 0
             data.Distance.Text = math.floor(dist) .. " studs"
             data.Distance.Position = Vector2.new(position.X, position.Y + 20)
-            data.Distance.Color = visible and Config.ESP.Color or Color3.fromRGB(120,120,120)
+            data.Distance.Color = Config.Visuals.DistanceColor
             data.Distance.Visible = true
         else
             data.Distance.Visible = false
         end
 
-        if Config.ESP.Health then
+        if Config.Visuals.HealthBar then
             local hp = math.clamp(humanoid.Health / math.max(humanoid.MaxHealth, 1), 0, 1)
             data.HPBar.Size = Vector2.new(width + 4, 2)
             data.HPBar.Position = Vector2.new(position.X - width/2 - 2, position.Y - height/2 - 5)
@@ -907,19 +1341,24 @@ local function updateDrawingESP()
             data.HPBar.Visible = false
         end
 
-        if Config.ESP.Tracers then
-            local bottom = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y)
-            data.Tracer.From = bottom
+        if Config.Visuals.Tracers then
+            local origin = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y)
+            if Config.Visuals.TracerOrigin == "Top" then
+                origin = Vector2.new(Camera.ViewportSize.X/2, 0)
+            elseif Config.Visuals.TracerOrigin == "Center" then
+                origin = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
+            end
+            data.Tracer.From = origin
             data.Tracer.To = Vector2.new(position.X, position.Y)
-            data.Tracer.Color = visible and Config.ESP.TracerColor or Color3.fromRGB(120,120,120)
+            data.Tracer.Color = Config.Visuals.TracerColor
             data.Tracer.Visible = true
         else
             data.Tracer.Visible = false
         end
 
-        if Config.ESP.Chams and data.Cham then
+        if Config.Visuals.Chams and data.Cham then
             data.Cham.Enabled = true
-            data.Cham.FillColor = visible and Config.ESP.ChamColor or Color3.fromRGB(120,120,120)
+            data.Cham.FillColor = Config.Visuals.ChamsColor
         elseif data.Cham then
             data.Cham.Enabled = false
         end
@@ -932,65 +1371,11 @@ end
 
 local FOVCircle = DrawingAPI and DrawingAPI.new("Circle") or nil
 if FOVCircle then
-    FOVCircle.Thickness = 1
-    FOVCircle.Color = Theme.accent
+    FOVCircle.Thickness = Config.Combat.FOVCircleThickness
+    FOVCircle.Color = Config.Combat.FOVCircleColor
     FOVCircle.Filled = false
     FOVCircle.Visible = false
     FOVCircle.Transparency = 0.7
-end
-
---//==================================================
---// AIMBOT + SILENT AIM + TRIGGERBOT
---//==================================================
-
-local SilentAimTarget = nil
-
-local function getClosestTarget()
-    local closest = nil
-    local closestDist = Config.AIM.FOV
-    local center = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
-
-    for model, _ in pairs(ESPObjects) do
-        local humanoid = model:FindFirstChildOfClass("Humanoid")
-        local root = model:FindFirstChild("HumanoidRootPart") or model.PrimaryPart
-        if humanoid and root and humanoid.Health > 0 then
-            local part = model:FindFirstChild(Config.AIM.Bone) or root
-            if part and part:IsA("BasePart") then
-                local pos, onScreen = Camera:WorldToViewportPoint(part.Position)
-                if onScreen then
-                    local screenPos = Vector2.new(pos.X, pos.Y)
-                    local dist = (screenPos - center).Magnitude
-                    if dist < closestDist then
-                        if not Config.AIM.VisibleCheck or isVisible(part, model) then
-                            closestDist = dist
-                            closest = part
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    return closest
-end
-
---// Silent Aim
-if hookmetamethod then
-    local oldIndex
-    oldIndex = hookmetamethod(game, "__index", function(self, key)
-        if not checkcaller() and SilentAimTarget and Config.AIM.SilentAim then
-            if self == LocalPlayer:GetMouse() then
-                if key == "Hit" then
-                    return SilentAimTarget.CFrame
-                elseif key == "Target" then
-                    return SilentAimTarget
-                elseif key == "UnitRay" then
-                    return Ray.new(Camera.CFrame.Position, (SilentAimTarget.Position - Camera.CFrame.Position).Unit * 1000)
-                end
-            end
-        end
-        return oldIndex(self, key)
-    end)
 end
 
 --//==================================================
@@ -1006,114 +1391,10 @@ RunService.RenderStepped:Connect(function(dt)
         if FOVCircle then
             local center = Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2)
             FOVCircle.Position = center
-            FOVCircle.Radius = Config.AIM.FOV
-            FOVCircle.Color = Theme.accent
-            FOVCircle.Visible = Config.AIM.Enabled
-        end
-    end
-
-    if Config.AIM.Enabled and camera then
-        local target = getClosestTarget()
-        SilentAimTarget = target
-
-        if target and not Config.AIM.SilentAim then
-            local desired = CFrame.lookAt(camera.CFrame.Position, target.Position)
-            camera.CFrame = camera.CFrame:Lerp(desired, math.clamp(Config.AIM.Smoothness, 0.01, 1))
-        end
-    else
-        SilentAimTarget = nil
-    end
-
-    if Config.AIM.Triggerbot then
-        local target = getClosestTarget()
-        if target then
-            task.wait(Config.AIM.TriggerDelay)
-            if mouse1click then pcall(mouse1click) end
-        end
-    end
-end)
-
---//==================================================
---// VISUAL
---//==================================================
-
-RunService.RenderStepped:Connect(function()
-    if Config.Visual.Fog then
-        Lighting.FogColor = Config.Visual.FogColor
-        Lighting.FogStart = Config.Visual.FogStart
-        Lighting.FogEnd = Config.Visual.FogEnd
-    end
-
-    if Config.Visual.PlayerColor then
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer and player.Character then
-                for _, part in ipairs(player.Character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.Color = Config.Visual.PlayerColorValue
-                    end
-                end
-            end
-        end
-    end
-end)
-
---// Third Person
-RunService:BindToRenderStep("LEMOS_ThirdPerson", Enum.RenderPriority.Camera.Value + 1, function()
-    if not Config.Visual.ThirdPerson then return end
-    local character = LocalPlayer.Character
-    local root = character and character:FindFirstChild("HumanoidRootPart")
-    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-    if not root or not humanoid then return end
-
-    local cam = Workspace.CurrentCamera
-    cam.CameraType = Enum.CameraType.Custom
-    cam.CameraSubject = humanoid
-
-    local look = cam.CFrame.LookVector
-    local desired = root.Position - look * Config.Visual.ThirdPersonDistance + Vector3.new(0, Config.Visual.ThirdPersonHeight, 0)
-    cam.CFrame = CFrame.lookAt(desired, root.Position + Vector3.new(0, 1.5, 0))
-end)
-
---// Spinbot / Scale
-RunService.Heartbeat:Connect(function(dt)
-    if Config.Visual.Spinbot and LocalPlayer.Character then
-        local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if root then
-            root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(Config.Visual.SpinbotSpeed * dt * 60), 0)
-        end
-    end
-end)
-
-RunService.RenderStepped:Connect(function()
-    if Config.Visual.Scale ~= 1 and LocalPlayer.Character then
-        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.BodyDepthScale.Value = Config.Visual.Scale
-            humanoid.BodyWidthScale.Value = Config.Visual.Scale
-            humanoid.BodyHeightScale.Value = Config.Visual.Scale
-            humanoid.HeadScale.Value = Config.Visual.Scale
-        end
-    end
-end)
-
---//==================================================
---// MISC
---//==================================================
-
-RunService.RenderStepped:Connect(function()
-    if Config.Misc.Speed ~= 16 and LocalPlayer.Character then
-        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.WalkSpeed = Config.Misc.Speed
-        end
-    end
-
-    if Config.Misc.Invisible and LocalPlayer.Character then
-        for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
-            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                part.LocalTransparencyModifier = 1
-                part.Transparency = 1
-            end
+            FOVCircle.Radius = Config.Combat.AimbotFOV
+            FOVCircle.Color = Config.Combat.FOVCircleColor
+            FOVCircle.Thickness = Config.Combat.FOVCircleThickness
+            FOVCircle.Visible = Config.Combat.FOVCircle and Config.Combat.Aimbot
         end
     end
 end)
@@ -1144,7 +1425,7 @@ Workspace.DescendantRemoving:Connect(function(obj)
 end)
 
 --//==================================================
---// CONFIG SAVE/LOAD
+--// КОНФИГ SAVE/LOAD
 --//==================================================
 
 function saveConfig()
@@ -1160,6 +1441,8 @@ function saveConfig()
             for k2, v2 in pairs(v) do
                 if type(v2) == "Color3" then
                     data[k][k2] = {v2.R, v2.G, v2.B}
+                elseif typeof(v2) == "EnumItem" then
+                    data[k][k2] = v2.Name
                 else
                     data[k][k2] = v2
                 end
@@ -1169,6 +1452,7 @@ function saveConfig()
         end
     end
     safeWriteFile(path, HttpService:JSONEncode(data))
+    notify("Config saved", Theme.accent)
 end
 
 function loadConfig()
@@ -1190,12 +1474,13 @@ function loadConfig()
                     Config[k] = v
                 end
             end
+            notify("Config loaded", Theme.accent)
         end
     end
 end
 
 --//==================================================
---// WINDOW CONTROLS
+--// УПРАВЛЕНИЕ ОКНОМ
 --//==================================================
 
 Close.MouseButton1Click:Connect(function() Main.Visible = false end)
@@ -1207,7 +1492,7 @@ Minimize.MouseButton1Click:Connect(function()
     minimized = not minimized
     if minimized then
         savedSize = Main.Size
-        Main.Size = UDim2.fromOffset(460,50)
+        Main.Size = UDim2.fromOffset(560,50)
         Sidebar.Visible = false
         Content.Visible = false
     else
@@ -1219,7 +1504,7 @@ end)
 
 UserInputService.InputBegan:Connect(function(input, processed)
     if processed then return end
-    if input.KeyCode == Enum.KeyCode.RightShift then
+    if input.KeyCode == Config.Misc.Hotkey then
         Main.Visible = not Main.Visible
     end
 end)
@@ -1258,7 +1543,7 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 --//==================================================
---// THEME REFRESH
+--// ОБНОВЛЕНИЕ ТЕМЫ
 --//==================================================
 
 function refreshTheme()
@@ -1274,7 +1559,7 @@ function refreshTheme()
         data.Button.BackgroundColor3 = Theme.item
         data.Button.TextColor3 = Theme.sub
     end
-    if FOVCircle then FOVCircle.Color = Theme.accent end
+    if FOVCircle then FOVCircle.Color = Config.Combat.FOVCircleColor end
     if activeTab then
         local old = activeTab
         activeTab = nil
@@ -1283,19 +1568,11 @@ function refreshTheme()
 end
 
 --//==================================================
---// OPEN ANIMATION
---//==================================================
-
-local targetSize = Main.Size
-Main.Size = UDim2.fromOffset(400, 280)
-TweenService:Create(Main, TweenInfo.new(.4, Enum.EasingStyle.Quart), {Size = targetSize}):Play()
-
---//==================================================
---// START
+--// СТАРТ
 --//==================================================
 
 loadConfig()
 scanTargets()
-activate("ESP")
+activate("Combat")
 
-print("[LEMOS] 0.1 loaded. Executor: " .. Executor)
+print("[LEMOS] 0.2 loaded. Executor: " .. Executor)
