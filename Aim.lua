@@ -1,7 +1,7 @@
---// LEMOS 0.4 STANDOFF EDITION
---// Universal Executor Script (Synapse X, Script-Ware, Fluxus, Delta, Solara, Wave)
---// Rewritten by Bean (Бин) for Jack and Steve
---// Без значков, без смайликов. Чистый минимализм.
+--// LEMOS 1.0 STANDOFF EDITION
+--// Universal Executor Script
+--// Synapse X / Script-Ware / Fluxus / Delta / Solara / Wave
+--// Без значков. Без смайликов. Чистый минимализм.
 
 --//==================================================
 --// EXECUTOR CHECK
@@ -40,11 +40,6 @@ local function safeCall(fn, ...)
     local ok, res = pcall(function() return fn(table.unpack(args)) end)
     if not ok then warn("[LEMOS] " .. tostring(res)) end
     return ok, res
-end
-
-local function safeGetGenv()
-    if getgenv then return getgenv() end
-    return _G
 end
 
 local function safeWriteFile(path, content)
@@ -94,7 +89,7 @@ local Camera = Workspace.CurrentCamera
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui", 10)
 
 --//==================================================
---// DRAWING API CHECK
+--// DRAWING API
 --//==================================================
 
 local DrawingAPI = nil
@@ -106,10 +101,6 @@ pcall(function()
         HasDrawing = true
     end
 end)
-
-if not HasDrawing then
-    warn("[LEMOS] Drawing API недоступен. ESP через Drawing отключён.")
-end
 
 --//==================================================
 --// CONFIG
@@ -370,6 +361,7 @@ local function createPage(name)
     p.ScrollBarImageColor3 = Theme.accent
     p.CanvasSize = UDim2.new(0,0,0,0)
     p.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    p.ScrollingDirection = Enum.ScrollingDirection.Y
     p.Visible = false
     p.Parent = Content
 
@@ -378,6 +370,11 @@ local function createPage(name)
     pad.PaddingRight = UDim.new(0,4)
     pad.PaddingBottom = UDim.new(0,8)
     pad.Parent = p
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0,6)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Parent = p
 
     Pages[name] = p
     return p
@@ -392,6 +389,7 @@ local function pageTitle(parent,titleText,subtitle)
     local box = Instance.new("Frame")
     box.Size = UDim2.new(1,0,0,52)
     box.BackgroundTransparency = 1
+    box.LayoutOrder = 0
     box.Parent = parent
 
     local t = label(box,titleText,19,Theme.text)
@@ -652,7 +650,7 @@ createDropdown(SciencePage,"Fog Color",{"Red","Blue","Green","Purple","White","B
 end)
 
 createToggle(SciencePage,"Player Color",Config.Science.PlayerColor,function(v) Config.Science.PlayerColor=v end)
-createDropdown(SciencePage,"Player Color",{"Red","Blue","Green","Purple","White","Black"},"Red",function(v)
+createDropdown(SciencePage,"Player Color Value",{"Red","Blue","Green","Purple","White","Black"},"Red",function(v)
     local colors = {
         Red=Color3.fromRGB(255,0,0),
         Blue=Color3.fromRGB(0,0,255),
@@ -678,11 +676,24 @@ createDropdown(SettingsPage,"Theme",{
 },Config.Theme,function(v)
     Config.Theme=v
     Theme=Themes[v]
+    refreshTheme()
 end)
 
 createSlider(SettingsPage,"UI Scale",70,130,100,function(v)
     Config.WindowScale=v/100
     Scale.Scale=Config.WindowScale
+end)
+
+local SaveBtn = button(SettingsPage, "SAVE CONFIG")
+SaveBtn.Size = UDim2.new(1,0,0,40)
+SaveBtn.MouseButton1Click:Connect(function()
+    saveConfig()
+end)
+
+local LoadBtn = button(SettingsPage, "LOAD CONFIG")
+LoadBtn.Size = UDim2.new(1,0,0,40)
+LoadBtn.MouseButton1Click:Connect(function()
+    loadConfig()
 end)
 
 local UnloadBtn = button(SettingsPage, "UNLOAD SCRIPT")
@@ -699,18 +710,23 @@ UnloadBtn.MouseButton1Click:Connect(function()
 end)
 
 --//==================================================
---// TAB SYSTEM
+--// TAB SYSTEM (исправлено: без зависаний)
 --//==================================================
 
+local activeTab = nil
+
 local function activate(name)
+    if activeTab == name then return end
+    activeTab = name
+
     for pageName,page in pairs(Pages) do
-        page.Visible=(pageName==name)
+        page.Visible = (pageName == name)
     end
 
     for tabName,data in pairs(Tabs) do
-        local active=(tabName==name)
-        data.Button.BackgroundColor3=active and Theme.accent or Theme.item
-        data.Button.TextColor3=active and Theme.bg or Theme.sub
+        local active = (tabName == name)
+        data.Button.BackgroundColor3 = active and Theme.accent or Theme.item
+        data.Button.TextColor3 = active and Theme.bg or Theme.sub
     end
 end
 
@@ -761,7 +777,6 @@ local function createDrawingESP(model)
     hpBar.Color = Color3.fromRGB(90, 225, 105)
     hpBar.Visible = false
 
-    local skeletonLines = {}
     local tracer = DrawingAPI.new("Line")
     tracer.Thickness = 1
     tracer.Color = Config.ESP.TracerColor
@@ -785,7 +800,6 @@ local function createDrawingESP(model)
         Distance = distance,
         HPBar = hpBar,
         Tracer = tracer,
-        Skeleton = skeletonLines,
         Cham = cham,
     }
 end
@@ -908,7 +922,6 @@ if FOVCircle then
     FOVCircle.Filled = false
     FOVCircle.Visible = false
     FOVCircle.Transparency = 0.7
-    FOVCircle.NumSides = 60
 end
 
 --//==================================================
@@ -1201,7 +1214,7 @@ end)
 --// THEME REFRESH
 --//==================================================
 
-local function refreshTheme()
+function refreshTheme()
     Theme = Themes[Config.Theme]
 
     Main.BackgroundColor3 = Theme.bg
@@ -1220,13 +1233,11 @@ local function refreshTheme()
     end
 
     if FOVCircle then FOVCircle.Color = Theme.accent end
-    activate("ESP")
-end
-
-local oldActivate = activate
-activate = function(name)
-    refreshTheme()
-    oldActivate(name)
+    if activeTab then
+        local old = activeTab
+        activeTab = nil
+        activate(old)
+    end
 end
 
 --//==================================================
