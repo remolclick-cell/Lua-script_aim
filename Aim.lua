@@ -1,12 +1,85 @@
---// LEMOS Delta Edition
---// For Delta Executor (Mobile/PC)
---// Players-only ESP + Camera/Mouse Aim
+--// LEMOS 0.4 STANDOFF EDITION
+--// Universal Executor Script (Synapse X, Script-Ware, Fluxus, Delta, Solara, Wave)
+--// Rewritten by Bean (Бин) for Jack and Steve
+--// Без значков, без смайликов. Чистый минимализм.
 
-if getgenv().LEMOS_LOADED then
-    warn("[LEMOS] Already loaded. Unload first or rejoin.")
-    return
+--//==================================================
+--// EXECUTOR CHECK
+--//==================================================
+
+local Executor = "Unknown"
+local IsExecutor = false
+
+local function getExecutor()
+    if syn then return "Synapse X" end
+    if fluxus then return "Fluxus" end
+    if delta then return "Delta" end
+    if Solara then return "Solara" end
+    if Wave then return "Wave" end
+    if Kavo then return "Kavo" end
+    if is_sirhurt_closure then return "SirHurt" end
+    if secure_load then return "Sentinel" end
+    return "Unknown"
 end
-getgenv().LEMOS_LOADED = true
+
+pcall(function()
+    Executor = getExecutor()
+    if Executor ~= "Unknown" then IsExecutor = true end
+end)
+
+if not IsExecutor then
+    warn("[LEMOS] Запущено вне экзекьютера. Часть функций отключена.")
+end
+
+--//==================================================
+--// SAFE WRAPPERS
+--//==================================================
+
+local function safeCall(fn, ...)
+    local args = {...}
+    local ok, res = pcall(function() return fn(table.unpack(args)) end)
+    if not ok then warn("[LEMOS] " .. tostring(res)) end
+    return ok, res
+end
+
+local function safeGetGenv()
+    if getgenv then return getgenv() end
+    return _G
+end
+
+local function safeWriteFile(path, content)
+    if writefile then return safeCall(writefile, path, content) end
+    return false
+end
+
+local function safeReadFile(path)
+    if readfile then return safeCall(readfile, path) end
+    return false
+end
+
+local function safeIsFile(path)
+    if isfile then return safeCall(isfile, path) end
+    return false
+end
+
+local function safeSetClipboard(text)
+    if setclipboard then return safeCall(setclipboard, text) end
+    return false
+end
+
+local function safeHookFunction(fn, hook)
+    if hookfunction then return safeCall(hookfunction, fn, hook) end
+    return false
+end
+
+local function safeHookMetamethod(obj, method, hook)
+    if hookmetamethod then return safeCall(hookmetamethod, obj, method, hook) end
+    return false
+end
+
+--//==================================================
+--// SERVICES
+--//==================================================
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -14,123 +87,101 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
+local HttpService = game:GetService("HttpService")
 
 local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui", 10)
 
---==================================================
--- CONFIG
---==================================================
+--//==================================================
+--// DRAWING API CHECK
+--//==================================================
+
+local DrawingAPI = nil
+local HasDrawing = false
+
+pcall(function()
+    if Drawing then
+        DrawingAPI = Drawing
+        HasDrawing = true
+    end
+end)
+
+if not HasDrawing then
+    warn("[LEMOS] Drawing API недоступен. ESP через Drawing отключён.")
+end
+
+--//==================================================
+--// CONFIG
+--//==================================================
 
 local Config = {
+    ScriptName = "LEMOS",
     WindowScale = 1,
     WindowTransparency = 0.06,
     Theme = "Dark",
+
     ESP = {
         Enabled = true,
         Boxes = true,
+        Skeleton = false,
         Health = true,
         Names = true,
         Distance = true,
-        TeamCheck = true,
-        Color = Color3.fromRGB(255, 111, 25),
+        Tracers = false,
+        Chams = false,
+        VisibilityCheck = true,
+        Color = Color3.fromRGB(255, 130, 35),
+        SkeletonColor = Color3.fromRGB(255, 255, 255),
+        TracerColor = Color3.fromRGB(255, 130, 35),
+        ChamColor = Color3.fromRGB(255, 130, 35),
     },
+
     AIM = {
         Enabled = false,
-        Mode = "Camera", -- "Camera" | "Mouse"
         FOV = 140,
         Smoothness = 0.15,
-        Bone = "HumanoidRootPart",
-        VisibleOnly = true,
-        TeamCheck = true,
-        Sensitivity = 0.5, -- for Mouse aim
+        Bone = "Head",
+        AimKey = Enum.UserInputType.MouseButton2,
+        VisibleCheck = true,
+        SilentAim = false,
+        Triggerbot = false,
+        TriggerDelay = 0.1,
     },
-    ThirdPerson = {
-        Enabled = false,
-        Distance = 8,
-        Height = 2,
-    },
-    Troll = {
+
+    Science = {
+        Fog = false,
+        FogColor = Color3.fromRGB(255, 0, 0),
+        FogStart = 0,
+        FogEnd = 500,
+        PlayerColor = false,
+        PlayerColorValue = Color3.fromRGB(255, 0, 0),
         Spinbot = false,
-        SpinSpeed = 8,
+        SpinbotSpeed = 10,
         Flip = false,
+        Scale = 1,
     },
 }
 
---==================================================
--- THEMES
---==================================================
+--//==================================================
+--// THEMES
+--//==================================================
 
 local Themes = {
-    Dark = {
-        accent = Color3.fromRGB(255,111,25),
-        bg = Color3.fromRGB(12,12,13),
-        panel = Color3.fromRGB(18,18,19),
-        item = Color3.fromRGB(22,22,23),
-        text = Color3.fromRGB(245,245,245),
-        sub = Color3.fromRGB(135,135,135),
-    },
-    Light = {
-        accent = Color3.fromRGB(255,105,30),
-        bg = Color3.fromRGB(238,238,240),
-        panel = Color3.fromRGB(250,250,252),
-        item = Color3.fromRGB(232,232,235),
-        text = Color3.fromRGB(25,25,28),
-        sub = Color3.fromRGB(105,105,110),
-    },
-    ["Purple Neon"] = {
-        accent = Color3.fromRGB(177,90,255),
-        bg = Color3.fromRGB(12,9,17),
-        panel = Color3.fromRGB(22,16,29),
-        item = Color3.fromRGB(29,21,38),
-        text = Color3.fromRGB(247,242,255),
-        sub = Color3.fromRGB(155,135,175),
-    },
-    ["Red Blood"] = {
-        accent = Color3.fromRGB(235,55,65),
-        bg = Color3.fromRGB(16,9,10),
-        panel = Color3.fromRGB(27,14,15),
-        item = Color3.fromRGB(38,18,20),
-        text = Color3.fromRGB(255,242,243),
-        sub = Color3.fromRGB(165,125,128),
-    },
-    ["Blue Cyber"] = {
-        accent = Color3.fromRGB(50,160,255),
-        bg = Color3.fromRGB(8,13,19),
-        panel = Color3.fromRGB(13,22,31),
-        item = Color3.fromRGB(18,29,40),
-        text = Color3.fromRGB(240,248,255),
-        sub = Color3.fromRGB(125,155,180),
-    },
-    ["Green Toxic"] = {
-        accent = Color3.fromRGB(90,225,105),
-        bg = Color3.fromRGB(8,14,9),
-        panel = Color3.fromRGB(14,24,16),
-        item = Color3.fromRGB(19,32,21),
-        text = Color3.fromRGB(240,255,241),
-        sub = Color3.fromRGB(130,165,135),
-    },
-    RGB = {
-        accent = Color3.fromRGB(255,80,200),
-        bg = Color3.fromRGB(10,10,14),
-        panel = Color3.fromRGB(18,18,24),
-        item = Color3.fromRGB(25,25,34),
-        text = Color3.fromRGB(245,245,250),
-        sub = Color3.fromRGB(135,135,150),
-    },
+    Dark = {accent=Color3.fromRGB(255,111,25), bg=Color3.fromRGB(12,12,13), panel=Color3.fromRGB(18,18,19), item=Color3.fromRGB(22,22,23), text=Color3.fromRGB(245,245,245), sub=Color3.fromRGB(135,135,135)},
+    Light = {accent=Color3.fromRGB(255,105,30), bg=Color3.fromRGB(238,238,240), panel=Color3.fromRGB(250,250,252), item=Color3.fromRGB(232,232,235), text=Color3.fromRGB(25,25,28), sub=Color3.fromRGB(105,105,110)},
+    ["Purple Neon"] = {accent=Color3.fromRGB(177,90,255), bg=Color3.fromRGB(12,9,17), panel=Color3.fromRGB(22,16,29), item=Color3.fromRGB(29,21,38), text=Color3.fromRGB(247,242,255), sub=Color3.fromRGB(155,135,175)},
+    ["Red Blood"] = {accent=Color3.fromRGB(235,55,65), bg=Color3.fromRGB(16,9,10), panel=Color3.fromRGB(27,14,15), item=Color3.fromRGB(38,18,20), text=Color3.fromRGB(255,242,243), sub=Color3.fromRGB(165,125,128)},
+    ["Blue Cyber"] = {accent=Color3.fromRGB(50,160,255), bg=Color3.fromRGB(8,13,19), panel=Color3.fromRGB(13,22,31), item=Color3.fromRGB(18,29,40), text=Color3.fromRGB(240,248,255), sub=Color3.fromRGB(125,155,180)},
+    ["Green Toxic"] = {accent=Color3.fromRGB(90,225,105), bg=Color3.fromRGB(8,14,9), panel=Color3.fromRGB(14,24,16), item=Color3.fromRGB(19,32,21), text=Color3.fromRGB(240,255,241), sub=Color3.fromRGB(130,165,135)},
+    RGB = {accent=Color3.fromRGB(255,80,200), bg=Color3.fromRGB(10,10,14), panel=Color3.fromRGB(18,18,24), item=Color3.fromRGB(25,25,34), text=Color3.fromRGB(245,245,250), sub=Color3.fromRGB(135,135,150)},
 }
 
 local Theme = Themes[Config.Theme]
 
---==================================================
--- HELPERS
---==================================================
-
-local function safe(fn, ...)
-    local ok, result = pcall(fn, ...)
-    if not ok then warn("[LEMOS] " .. tostring(result)) end
-    return ok, result
-end
+--//==================================================
+--// HELPERS
+--//==================================================
 
 local function tween(obj, props, duration)
     return TweenService:Create(
@@ -181,29 +232,30 @@ local function button(parent, text)
     return b
 end
 
---==================================================
--- CLEAN OLD UI
---==================================================
+--//==================================================
+--// CLEAN OLD UI
+--//==================================================
 
 local guiParent = (gethui and gethui()) or PlayerGui
 local old = guiParent:FindFirstChild("LEMOS_UI")
 if old then old:Destroy() end
 
---==================================================
--- GUI
---==================================================
+--//==================================================
+--// GUI
+--//==================================================
 
 local GUI = Instance.new("ScreenGui")
 GUI.Name = "LEMOS_UI"
 GUI.ResetOnSpawn = false
 GUI.IgnoreGuiInset = true
 GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+if protect_gui then pcall(protect_gui, GUI) end
 GUI.Parent = guiParent
 
 local Main = Instance.new("Frame")
 Main.Name = "Main"
-Main.Size = UDim2.fromOffset(470, 330)
-Main.Position = UDim2.new(.5, -235, .5, -165)
+Main.Size = UDim2.fromOffset(480, 340)
+Main.Position = UDim2.new(.5, -240, .5, -170)
 Main.BackgroundColor3 = Theme.bg
 Main.BackgroundTransparency = Config.WindowTransparency
 Main.BorderSizePixel = 0
@@ -215,9 +267,9 @@ local Scale = Instance.new("UIScale")
 Scale.Scale = Config.WindowScale
 Scale.Parent = Main
 
---==================================================
--- HEADER
---==================================================
+--//==================================================
+--// HEADER
+--//==================================================
 
 local Header = Instance.new("Frame")
 Header.Size = UDim2.new(1,0,0,54)
@@ -242,26 +294,26 @@ Title.Size = UDim2.fromOffset(180,22)
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Font = Enum.Font.GothamBold
 
-local Version = label(Header,"DELTA",9,Theme.accent)
+local Version = label(Header,"STANDOFF",9,Theme.accent)
 Version.Position = UDim2.fromOffset(58,29)
 Version.Size = UDim2.fromOffset(120,17)
 Version.TextXAlignment = Enum.TextXAlignment.Left
 
-local Minimize = button(Header,"—")
+local Minimize = button(Header,"-")
 Minimize.Size = UDim2.fromOffset(32,32)
 Minimize.Position = UDim2.new(1,-82,0,11)
 
-local Close = button(Header,"×")
+local Close = button(Header,"x")
 Close.Size = UDim2.fromOffset(32,32)
 Close.Position = UDim2.new(1,-44,0,11)
 
---==================================================
--- SIDEBAR
---==================================================
+--//==================================================
+--// SIDEBAR
+--//==================================================
 
 local Sidebar = Instance.new("Frame")
 Sidebar.Position = UDim2.fromOffset(10,60)
-Sidebar.Size = UDim2.fromOffset(112,258)
+Sidebar.Size = UDim2.fromOffset(112,268)
 Sidebar.BackgroundColor3 = Theme.panel
 Sidebar.BorderSizePixel = 0
 Sidebar.Parent = Main
@@ -281,33 +333,26 @@ SideLayout.Parent = Sidebar
 local Tabs = {}
 local Pages = {}
 
-local function createTab(name, icon)
-    local b = button(Sidebar, "")
+local function createTab(name)
+    local b = button(Sidebar, name)
     b.Name = name
     b.Size = UDim2.new(1,0,0,42)
+    b.TextSize = 11
+    b.TextColor3 = Theme.sub
+    b.TextXAlignment = Enum.TextXAlignment.Center
 
-    local i = label(b,icon,15,Theme.sub)
-    i.Size = UDim2.fromOffset(25,42)
-    i.Position = UDim2.fromOffset(3,0)
-
-    local t = label(b,name,11,Theme.sub)
-    t.Position = UDim2.fromOffset(30,0)
-    t.Size = UDim2.new(1,-34,1,0)
-    t.TextXAlignment = Enum.TextXAlignment.Left
-
-    Tabs[name] = {Button=b,Icon=i,Text=t}
+    Tabs[name] = {Button=b}
     return b
 end
 
-local ESPTab = createTab("ESP","◈")
-local AIMTab = createTab("AIM","⌁")
-local PlayerTab = createTab("PLAYER","●")
-local TrollTab = createTab("TROLL","◆")
-local SettingsTab = createTab("SETTINGS","⚙")
+local ESPTab = createTab("ESP")
+local AIMTab = createTab("AIM")
+local ScienceTab = createTab("SCIENCE")
+local SettingsTab = createTab("SETTINGS")
 
---==================================================
--- CONTENT / PAGES
---==================================================
+--//==================================================
+--// CONTENT / PAGES
+--//==================================================
 
 local Content = Instance.new("Frame")
 Content.Position = UDim2.fromOffset(132,60)
@@ -340,8 +385,7 @@ end
 
 local ESPPage = createPage("ESP")
 local AIMPage = createPage("AIM")
-local PlayerPage = createPage("PLAYER")
-local TrollPage = createPage("TROLL")
+local SciencePage = createPage("SCIENCE")
 local SettingsPage = createPage("SETTINGS")
 
 local function pageTitle(parent,titleText,subtitle)
@@ -364,13 +408,12 @@ end
 
 pageTitle(ESPPage,"ESP","Player visualization")
 pageTitle(AIMPage,"AIM","Camera / Mouse assist")
-pageTitle(PlayerPage,"PLAYER","Camera controls")
-pageTitle(TrollPage,"TROLL","Local effects")
+pageTitle(SciencePage,"SCIENCE","Fog, colors, physics")
 pageTitle(SettingsPage,"SETTINGS","Interface config")
 
---==================================================
--- CONTROLS
---==================================================
+--//==================================================
+--// CONTROLS
+--//==================================================
 
 local function createToggle(parent,textValue,initial,callback)
     local holder = Instance.new("Frame")
@@ -547,16 +590,19 @@ local function createDropdown(parent,textValue,options,initial,callback)
     return holder
 end
 
---==================================================
--- ESP PAGE
---==================================================
+--//==================================================
+--// ESP PAGE
+--//==================================================
 
 createToggle(ESPPage,"ESP Enabled",Config.ESP.Enabled,function(v) Config.ESP.Enabled=v end)
 createToggle(ESPPage,"Boxes",Config.ESP.Boxes,function(v) Config.ESP.Boxes=v end)
 createToggle(ESPPage,"Health Bar",Config.ESP.Health,function(v) Config.ESP.Health=v end)
 createToggle(ESPPage,"Names",Config.ESP.Names,function(v) Config.ESP.Names=v end)
 createToggle(ESPPage,"Distance",Config.ESP.Distance,function(v) Config.ESP.Distance=v end)
-createToggle(ESPPage,"Team Check",Config.ESP.TeamCheck,function(v) Config.ESP.TeamCheck=v end)
+createToggle(ESPPage,"Skeleton",Config.ESP.Skeleton,function(v) Config.ESP.Skeleton=v end)
+createToggle(ESPPage,"Tracers",Config.ESP.Tracers,function(v) Config.ESP.Tracers=v end)
+createToggle(ESPPage,"Chams",Config.ESP.Chams,function(v) Config.ESP.Chams=v end)
+createToggle(ESPPage,"Visibility Check",Config.ESP.VisibilityCheck,function(v) Config.ESP.VisibilityCheck=v end)
 
 createDropdown(ESPPage,"ESP Color",{"Orange","White","Red","Blue","Green","Purple"},"Orange",function(v)
     local colors = {
@@ -570,70 +616,62 @@ createDropdown(ESPPage,"ESP Color",{"Orange","White","Red","Blue","Green","Purpl
     Config.ESP.Color=colors[v]
 end)
 
---==================================================
--- AIM PAGE
---==================================================
+--//==================================================
+--// AIM PAGE
+--//==================================================
 
 createToggle(AIMPage,"Aim Assist",Config.AIM.Enabled,function(v) Config.AIM.Enabled=v end)
+createToggle(AIMPage,"Silent Aim",Config.AIM.SilentAim,function(v) Config.AIM.SilentAim=v end)
+createToggle(AIMPage,"Triggerbot",Config.AIM.Triggerbot,function(v) Config.AIM.Triggerbot=v end)
+createToggle(AIMPage,"Visible targets only",Config.AIM.VisibleCheck,function(v) Config.AIM.VisibleCheck=v end)
 
-createDropdown(AIMPage,"Aim Mode",{"Camera","Mouse"},"Camera",function(v)
-    Config.AIM.Mode=v
+createSlider(AIMPage,"FOV",40,300,Config.AIM.FOV,function(v) Config.AIM.FOV=v end)
+createSlider(AIMPage,"Smoothness",1,100,math.floor(Config.AIM.Smoothness*100),function(v) Config.AIM.Smoothness=v/100 end)
+createSlider(AIMPage,"Trigger Delay",1,50,math.floor(Config.AIM.TriggerDelay*100),function(v) Config.AIM.TriggerDelay=v/100 end)
+
+createDropdown(AIMPage,"Target Bone",{"Head","HumanoidRootPart","UpperTorso"},"Head",function(v) Config.AIM.Bone=v end)
+
+--//==================================================
+--// SCIENCE PAGE
+--//==================================================
+
+createToggle(SciencePage,"Fog",Config.Science.Fog,function(v) Config.Science.Fog=v end)
+createSlider(SciencePage,"Fog Start",0,500,Config.Science.FogStart,function(v) Config.Science.FogStart=v end)
+createSlider(SciencePage,"Fog End",100,2000,Config.Science.FogEnd,function(v) Config.Science.FogEnd=v end)
+
+createDropdown(SciencePage,"Fog Color",{"Red","Blue","Green","Purple","White","Black"},"Red",function(v)
+    local colors = {
+        Red=Color3.fromRGB(255,0,0),
+        Blue=Color3.fromRGB(0,0,255),
+        Green=Color3.fromRGB(0,255,0),
+        Purple=Color3.fromRGB(175,0,255),
+        White=Color3.fromRGB(255,255,255),
+        Black=Color3.fromRGB(0,0,0),
+    }
+    Config.Science.FogColor=colors[v]
 end)
 
-createToggle(AIMPage,"Visible targets only",Config.AIM.VisibleOnly,function(v) Config.AIM.VisibleOnly=v end)
-createToggle(AIMPage,"Team Check",Config.AIM.TeamCheck,function(v) Config.AIM.TeamCheck=v end)
-
-createSlider(AIMPage,"FOV",40,300,Config.AIM.FOV,function(v)
-    Config.AIM.FOV=v
+createToggle(SciencePage,"Player Color",Config.Science.PlayerColor,function(v) Config.Science.PlayerColor=v end)
+createDropdown(SciencePage,"Player Color",{"Red","Blue","Green","Purple","White","Black"},"Red",function(v)
+    local colors = {
+        Red=Color3.fromRGB(255,0,0),
+        Blue=Color3.fromRGB(0,0,255),
+        Green=Color3.fromRGB(0,255,0),
+        Purple=Color3.fromRGB(175,0,255),
+        White=Color3.fromRGB(255,255,255),
+        Black=Color3.fromRGB(0,0,0),
+    }
+    Config.Science.PlayerColorValue=colors[v]
 end)
 
-createSlider(AIMPage,"Smoothness",1,100,math.floor(Config.AIM.Smoothness*100),function(v)
-    Config.AIM.Smoothness=v/100
-end)
+createToggle(SciencePage,"Spinbot",Config.Science.Spinbot,function(v) Config.Science.Spinbot=v end)
+createSlider(SciencePage,"Spin Speed",1,30,Config.Science.SpinbotSpeed,function(v) Config.Science.SpinbotSpeed=v end)
+createToggle(SciencePage,"Flip",Config.Science.Flip,function(v) Config.Science.Flip=v end)
+createSlider(SciencePage,"Scale",1,50,math.floor(Config.Science.Scale*10),function(v) Config.Science.Scale=v/10 end)
 
-createSlider(AIMPage,"Mouse Sens",1,100,math.floor(Config.AIM.Sensitivity*100),function(v)
-    Config.AIM.Sensitivity=v/100
-end)
-
-createDropdown(AIMPage,"Target Bone",{"Head","HumanoidRootPart","UpperTorso"},"HumanoidRootPart",function(v)
-    Config.AIM.Bone=v
-end)
-
---==================================================
--- PLAYER PAGE
---==================================================
-
-createToggle(PlayerPage,"Third Person",Config.ThirdPerson.Enabled,function(v)
-    Config.ThirdPerson.Enabled=v
-end)
-
-createSlider(PlayerPage,"Camera Distance",3,20,Config.ThirdPerson.Distance,function(v)
-    Config.ThirdPerson.Distance=v
-end)
-
-createSlider(PlayerPage,"Camera Height",0,8,Config.ThirdPerson.Height,function(v)
-    Config.ThirdPerson.Height=v
-end)
-
---==================================================
--- TROLL PAGE
---==================================================
-
-createToggle(TrollPage,"Spinbot",Config.Troll.Spinbot,function(v)
-    Config.Troll.Spinbot=v
-end)
-
-createSlider(TrollPage,"Spin Speed",1,30,Config.Troll.SpinSpeed,function(v)
-    Config.Troll.SpinSpeed=v
-end)
-
-createToggle(TrollPage,"Local Flip",Config.Troll.Flip,function(v)
-    Config.Troll.Flip=v
-end)
-
---==================================================
--- SETTINGS
---==================================================
+--//==================================================
+--// SETTINGS
+--//==================================================
 
 createDropdown(SettingsPage,"Theme",{
     "Dark","Light","Purple Neon","Red Blood","Blue Cyber","Green Toxic","RGB"
@@ -660,9 +698,9 @@ UnloadBtn.MouseButton1Click:Connect(function()
     print("[LEMOS] Unloaded.")
 end)
 
---==================================================
--- TAB SYSTEM
---==================================================
+--//==================================================
+--// TAB SYSTEM
+--//==================================================
 
 local function activate(name)
     for pageName,page in pairs(Pages) do
@@ -672,206 +710,232 @@ local function activate(name)
     for tabName,data in pairs(Tabs) do
         local active=(tabName==name)
         data.Button.BackgroundColor3=active and Theme.accent or Theme.item
-        data.Icon.TextColor3=active and Theme.bg or Theme.sub
-        data.Text.TextColor3=active and Theme.bg or Theme.sub
+        data.Button.TextColor3=active and Theme.bg or Theme.sub
     end
 end
 
 ESPTab.MouseButton1Click:Connect(function() activate("ESP") end)
 AIMTab.MouseButton1Click:Connect(function() activate("AIM") end)
-PlayerTab.MouseButton1Click:Connect(function() activate("PLAYER") end)
-TrollTab.MouseButton1Click:Connect(function() activate("TROLL") end)
+ScienceTab.MouseButton1Click:Connect(function() activate("SCIENCE") end)
 SettingsTab.MouseButton1Click:Connect(function() activate("SETTINGS") end)
 
---==================================================
--- FOV CIRCLE
---==================================================
-
-local FOVCircle = Instance.new("Frame")
-FOVCircle.Name="FOV"
-FOVCircle.AnchorPoint=Vector2.new(.5,.5)
-FOVCircle.BackgroundTransparency=1
-FOVCircle.Size=UDim2.fromOffset(Config.AIM.FOV*2,Config.AIM.FOV*2)
-FOVCircle.Position=UDim2.fromScale(.5,.5)
-FOVCircle.Visible=false
-FOVCircle.Parent=GUI
-corner(FOVCircle,999)
-local FOVStroke=stroke(FOVCircle,Theme.accent,.25,1)
-
---==================================================
--- PLAYER ESP
---==================================================
+--//==================================================
+--// DRAWING ESP
+--//==================================================
 
 local ESPObjects={}
-local ESPFolder=Instance.new("Folder")
-ESPFolder.Name="LEMOS_PlayerESP"
-ESPFolder.Parent=GUI
 
-local function isEnemy(player)
-    if not Config.ESP.TeamCheck then return true end
-    if not player.Team or not LocalPlayer.Team then return true end
-    return player.Team ~= LocalPlayer.Team
+local function createDrawingESP(model)
+    if not HasDrawing then return end
+    if not model:IsA("Model") then return end
+    if model == LocalPlayer.Character then return end
+
+    local humanoid = model:FindFirstChildOfClass("Humanoid")
+    local root = model:FindFirstChild("HumanoidRootPart") or model.PrimaryPart
+    if not humanoid or not root then return end
+    if ESPObjects[model] then return end
+
+    local box = DrawingAPI.new("Square")
+    box.Thickness = 1
+    box.Color = Config.ESP.Color
+    box.Filled = false
+    box.Visible = false
+
+    local name = DrawingAPI.new("Text")
+    name.Size = 14
+    name.Center = true
+    name.Outline = true
+    name.Color = Config.ESP.Color
+    name.Visible = false
+
+    local distance = DrawingAPI.new("Text")
+    distance.Size = 12
+    distance.Center = true
+    distance.Outline = true
+    distance.Color = Config.ESP.Color
+    distance.Visible = false
+
+    local hpBar = DrawingAPI.new("Square")
+    hpBar.Thickness = 2
+    hpBar.Filled = true
+    hpBar.Color = Color3.fromRGB(90, 225, 105)
+    hpBar.Visible = false
+
+    local skeletonLines = {}
+    local tracer = DrawingAPI.new("Line")
+    tracer.Thickness = 1
+    tracer.Color = Config.ESP.TracerColor
+    tracer.Visible = false
+
+    local cham = nil
+    if Config.ESP.Chams then
+        cham = Instance.new("Highlight")
+        cham.Adornee = model
+        cham.FillColor = Config.ESP.ChamColor
+        cham.OutlineColor = Config.ESP.ChamColor
+        cham.FillTransparency = 0.5
+        cham.OutlineTransparency = 0
+        cham.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        cham.Parent = GUI
+    end
+
+    ESPObjects[model] = {
+        Box = box,
+        Name = name,
+        Distance = distance,
+        HPBar = hpBar,
+        Tracer = tracer,
+        Skeleton = skeletonLines,
+        Cham = cham,
+    }
 end
 
-local function removeESP(player)
-    local data=ESPObjects[player]
-    if not data then return end
-    for _,obj in pairs(data) do
-        if typeof(obj)=="Instance" then
-            pcall(function() obj:Destroy() end)
+local function removeDrawingESP(model)
+    local data = ESPObjects[model]
+    if data then
+        for _, obj in pairs(data) do
+            if typeof(obj) == "Instance" then
+                pcall(function() obj:Destroy() end)
+            elseif obj and obj.Remove then
+                obj:Remove()
+            end
+        end
+        ESPObjects[model] = nil
+    end
+end
+
+local function updateDrawingESP()
+    if not Config.ESP.Enabled then
+        for model, data in pairs(ESPObjects) do
+            for _, obj in pairs(data) do
+                if obj and obj.Visible ~= nil then obj.Visible = false end
+            end
+        end
+        return
+    end
+
+    for model, data in pairs(ESPObjects) do
+        if not model.Parent then
+            removeDrawingESP(model)
+            continue
+        end
+
+        local humanoid = model:FindFirstChildOfClass("Humanoid")
+        local root = model:FindFirstChild("HumanoidRootPart") or model.PrimaryPart
+        if not humanoid or not root then
+            removeDrawingESP(model)
+            continue
+        end
+
+        local position, onScreen = Camera:WorldToViewportPoint(root.Position)
+        if not onScreen then
+            for _, obj in pairs(data) do
+                if obj and obj.Visible ~= nil then obj.Visible = false end
+            end
+            continue
+        end
+
+        if Config.ESP.Boxes then
+            local topPos = Camera:WorldToViewportPoint(root.Position + Vector3.new(0, 3, 0))
+            local height = math.abs(topPos.Y - position.Y)
+            local width = height * 0.6
+
+            data.Box.Size = Vector2.new(width, height)
+            data.Box.Position = Vector2.new(position.X - width/2, position.Y - height/2)
+            data.Box.Color = Config.ESP.Color
+            data.Box.Visible = true
+        else
+            data.Box.Visible = false
+        end
+
+        if Config.ESP.Names then
+            data.Name.Text = model.Name
+            data.Name.Position = Vector2.new(position.X, position.Y - 30)
+            data.Name.Color = Config.ESP.Color
+            data.Name.Visible = true
+        else
+            data.Name.Visible = false
+        end
+
+        if Config.ESP.Distance then
+            local localRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            local dist = localRoot and (localRoot.Position - root.Position).Magnitude or 0
+            data.Distance.Text = math.floor(dist) .. " studs"
+            data.Distance.Position = Vector2.new(position.X, position.Y + 20)
+            data.Distance.Color = Config.ESP.Color
+            data.Distance.Visible = true
+        else
+            data.Distance.Visible = false
+        end
+
+        if Config.ESP.Health then
+            local hp = math.clamp(humanoid.Health / math.max(humanoid.MaxHealth, 1), 0, 1)
+            data.HPBar.Size = Vector2.new(2, 4 * hp)
+            data.HPBar.Position = Vector2.new(position.X - 6, position.Y - 2)
+            data.HPBar.Color = Color3.fromRGB(90, 225, 105)
+            data.HPBar.Visible = true
+        else
+            data.HPBar.Visible = false
+        end
+
+        if Config.ESP.Tracers then
+            local bottom = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y)
+            data.Tracer.From = bottom
+            data.Tracer.To = Vector2.new(position.X, position.Y)
+            data.Tracer.Color = Config.ESP.TracerColor
+            data.Tracer.Visible = true
+        else
+            data.Tracer.Visible = false
+        end
+
+        if Config.ESP.Chams and data.Cham then
+            data.Cham.Enabled = true
+            data.Cham.FillColor = Config.ESP.ChamColor
+        elseif data.Cham then
+            data.Cham.Enabled = false
         end
     end
-    ESPObjects[player]=nil
 end
 
-local function createESP(player)
-    if player==LocalPlayer then return end
-    if not isEnemy(player) then return end
-    if ESPObjects[player] then return end
-    if not player.Character then return end
+--//==================================================
+--// FOV CIRCLE
+--//==================================================
 
-    local root=player.Character:FindFirstChild("HumanoidRootPart")
-    local humanoid=player.Character:FindFirstChildOfClass("Humanoid")
-    if not root or not humanoid then return end
-
-    local highlight=Instance.new("Highlight")
-    highlight.Name="LEMOS_Highlight"
-    highlight.Adornee=player.Character
-    highlight.FillColor=Config.ESP.Color
-    highlight.OutlineColor=Config.ESP.Color
-    highlight.FillTransparency=.82
-    highlight.OutlineTransparency=0
-    highlight.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop
-    highlight.Parent=ESPFolder
-
-    local billboard=Instance.new("BillboardGui")
-    billboard.Name="LEMOS_Info"
-    billboard.Adornee=root
-    billboard.Size=UDim2.fromOffset(180,58)
-    billboard.StudsOffset=Vector3.new(0,3.4,0)
-    billboard.AlwaysOnTop=true
-    billboard.Parent=ESPFolder
-
-    local info=Instance.new("TextLabel")
-    info.Size=UDim2.fromScale(1,1)
-    info.BackgroundTransparency=1
-    info.Font=Enum.Font.GothamBold
-    info.TextSize=11
-    info.TextColor3=Config.ESP.Color
-    info.TextStrokeTransparency=.35
-    info.TextYAlignment=Enum.TextYAlignment.Center
-    info.Parent=billboard
-
-    local hpBack=Instance.new("Frame")
-    hpBack.Size=UDim2.new(1,-20,0,4)
-    hpBack.Position=UDim2.new(0,10,1,-6)
-    hpBack.BackgroundColor3=Color3.fromRGB(35,35,35)
-    hpBack.BorderSizePixel=0
-    hpBack.Parent=billboard
-    corner(hpBack,4)
-
-    local hpFill=Instance.new("Frame")
-    hpFill.Size=UDim2.fromScale(1,1)
-    hpFill.BackgroundColor3=Color3.fromRGB(90,225,105)
-    hpFill.BorderSizePixel=0
-    hpFill.Parent=hpBack
-    corner(hpFill,4)
-
-    ESPObjects[player]={
-        Highlight=highlight,
-        Billboard=billboard,
-        Info=info,
-        HPBack=hpBack,
-        HPFill=hpFill,
-        Humanoid=humanoid,
-        Character=player.Character,
-    }
+local FOVCircle = DrawingAPI and DrawingAPI.new("Circle") or nil
+if FOVCircle then
+    FOVCircle.Thickness = 1
+    FOVCircle.Color = Theme.accent
+    FOVCircle.Filled = false
+    FOVCircle.Visible = false
+    FOVCircle.Transparency = 0.7
+    FOVCircle.NumSides = 60
 end
 
--- Track character respawns
-local function setupPlayer(player)
-    if player==LocalPlayer then return end
-    if player.Character then
-        task.defer(function() createESP(player) end)
-    end
-    player.CharacterAdded:Connect(function()
-        task.wait(0.5)
-        if ESPObjects[player] then removeESP(player) end
-        createESP(player)
-    end)
-end
+--//==================================================
+--// AIMBOT + SILENT AIM + TRIGGERBOT
+--//==================================================
 
-for _,p in ipairs(Players:GetPlayers()) do setupPlayer(p) end
-Players.PlayerAdded:Connect(setupPlayer)
-Players.PlayerRemoving:Connect(removeESP)
-
---==================================================
--- VISIBILITY CHECK
---==================================================
-
-local function visibleFromCamera(part,character)
-    if not Config.AIM.VisibleOnly then return true end
-
-    local camera=Workspace.CurrentCamera
-    if not camera or not part then return false end
-
-    local origin=camera.CFrame.Position
-    local direction=part.Position-origin
-
-    local params=RaycastParams.new()
-    params.FilterType=Enum.RaycastFilterType.Exclude
-    params.FilterDescendantsInstances={
-        LocalPlayer.Character,
-        character,
-    }
-
-    local result=Workspace:Raycast(origin,direction,params)
-    return result==nil
-end
-
---==================================================
--- TARGET SEARCH
---==================================================
-
-local function getAimPart(character)
-    local preferred=Config.AIM.Bone
-    local part=character:FindFirstChild(preferred)
-    if part and part:IsA("BasePart") then return part end
-    return character:FindFirstChild("HumanoidRootPart") or character.PrimaryPart
-end
-
-local function isEnemyAim(player)
-    if not Config.AIM.TeamCheck then return true end
-    if not player.Team or not LocalPlayer.Team then return true end
-    return player.Team ~= LocalPlayer.Team
-end
+local SilentAimTarget = nil
 
 local function getClosestTarget()
-    local camera=Workspace.CurrentCamera
-    if not camera then return nil end
+    local closest = nil
+    local closestDist = Config.AIM.FOV
+    local center = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
 
-    local center=Vector2.new(camera.ViewportSize.X/2,camera.ViewportSize.Y/2)
-    local closest=nil
-    local closestDistance=Config.AIM.FOV
-
-    for _,player in ipairs(Players:GetPlayers()) do
-        if player==LocalPlayer then continue end
-        if not isEnemyAim(player) then continue end
-        if not player.Character then continue end
-
-        local humanoid=player.Character:FindFirstChildOfClass("Humanoid")
-        local part=getAimPart(player.Character)
-
-        if humanoid and humanoid.Health>0 and part then
-            local screen,onscreen=camera:WorldToViewportPoint(part.Position)
-
-            if onscreen then
-                local point=Vector2.new(screen.X,screen.Y)
-                local dist=(point-center).Magnitude
-
-                if dist<closestDistance and visibleFromCamera(part,player.Character) then
-                    closestDistance=dist
-                    closest=part
+    for model, _ in pairs(ESPObjects) do
+        local humanoid = model:FindFirstChildOfClass("Humanoid")
+        local root = model:FindFirstChild("HumanoidRootPart") or model.PrimaryPart
+        if humanoid and root and humanoid.Health > 0 then
+            local part = model:FindFirstChild(Config.AIM.Bone) or root
+            if part and part:IsA("BasePart") then
+                local pos, onScreen = Camera:WorldToViewportPoint(part.Position)
+                if onScreen then
+                    local screenPos = Vector2.new(pos.X, pos.Y)
+                    local dist = (screenPos - center).Magnitude
+                    if dist < closestDist then
+                        closestDist = dist
+                        closest = part
+                    end
                 end
             end
         end
@@ -880,265 +944,305 @@ local function getClosestTarget()
     return closest
 end
 
---==================================================
--- RENDER LOOP
---==================================================
+if Config.AIM.SilentAim and hookmetamethod then
+    local oldIndex
+    oldIndex = hookmetamethod(game, "__index", function(self, key)
+        if not checkcaller() and SilentAimTarget then
+            if self == LocalPlayer:GetMouse() then
+                if key == "Hit" then
+                    return SilentAimTarget.CFrame
+                elseif key == "Target" then
+                    return SilentAimTarget
+                end
+            end
+        end
+        return oldIndex(self, key)
+    end)
+end
+
+--//==================================================
+--// RENDER LOOP
+--//==================================================
 
 RunService.RenderStepped:Connect(function(dt)
-    local camera=Workspace.CurrentCamera
+    pcall(updateDrawingESP)
 
+    local camera = Workspace.CurrentCamera
     if camera then
-        local center=Vector2.new(camera.ViewportSize.X/2,camera.ViewportSize.Y/2)
-        FOVCircle.Position=UDim2.fromOffset(center.X,center.Y)
-        FOVCircle.Size=UDim2.fromOffset(Config.AIM.FOV*2,Config.AIM.FOV*2)
-        FOVCircle.Visible=Config.AIM.Enabled
-        FOVStroke.Color=Theme.accent
+        Camera = camera
+        if FOVCircle then
+            local center = Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2)
+            FOVCircle.Position = center
+            FOVCircle.Radius = Config.AIM.FOV
+            FOVCircle.Color = Theme.accent
+            FOVCircle.Visible = Config.AIM.Enabled
+        end
     end
 
-    for player,data in pairs(ESPObjects) do
-        local character=player.Character
-        if not character or not character.Parent then
-            removeESP(player)
-            continue
-        end
-
-        -- Recalculate if character changed
-        if data.Character ~= character then
-            removeESP(player)
-            createESP(player)
-            continue
-        end
-
-        local humanoid=character:FindFirstChildOfClass("Humanoid")
-        local root=character:FindFirstChild("HumanoidRootPart")
-
-        if not humanoid or not root then
-            removeESP(player)
-            continue
-        end
-
-        if not isEnemy(player) then
-            data.Highlight.Enabled=false
-            data.Billboard.Enabled=false
-            continue
-        end
-
-        data.Highlight.Enabled=Config.ESP.Enabled and Config.ESP.Boxes
-        data.Highlight.FillColor=Config.ESP.Color
-        data.Highlight.OutlineColor=Config.ESP.Color
-
-        local localRoot=LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        local distance=localRoot and (localRoot.Position-root.Position).Magnitude or 0
-
-        local lines={}
-        if Config.ESP.Names then table.insert(lines,player.Name) end
-        if Config.ESP.Health then table.insert(lines,"HP "..math.floor(humanoid.Health)) end
-        if Config.ESP.Distance then table.insert(lines,math.floor(distance).." studs") end
-
-        data.Info.Text=table.concat(lines,"  •  ")
-        data.Info.TextColor3=Config.ESP.Color
-        data.Billboard.Enabled=Config.ESP.Enabled and #lines>0
-
-        local hp=math.clamp(humanoid.Health/math.max(humanoid.MaxHealth,1),0,1)
-        data.HPBack.Visible=Config.ESP.Enabled and Config.ESP.Health
-        data.HPFill.Visible=Config.ESP.Enabled and Config.ESP.Health
-        data.HPFill.Size=UDim2.new(hp,0,1,0)
-    end
-
-    -- Aim Assist
     if Config.AIM.Enabled and camera then
-        local target=getClosestTarget()
+        local target = getClosestTarget()
+        SilentAimTarget = target
 
+        if target and not Config.AIM.SilentAim then
+            local desired = CFrame.lookAt(camera.CFrame.Position, target.Position)
+            camera.CFrame = camera.CFrame:Lerp(desired, math.clamp(Config.AIM.Smoothness, 0.01, 1))
+        end
+    else
+        SilentAimTarget = nil
+    end
+
+    if Config.AIM.Triggerbot then
+        local target = getClosestTarget()
         if target then
-            if Config.AIM.Mode == "Camera" then
-                local desired=CFrame.lookAt(camera.CFrame.Position,target.Position)
-                camera.CFrame=camera.CFrame:Lerp(desired,math.clamp(Config.AIM.Smoothness,0.01,1))
-            elseif Config.AIM.Mode == "Mouse" and mousemoverel then
-                local screen,onscreen=camera:WorldToViewportPoint(target.Position)
-                if onscreen then
-                    local center=Vector2.new(camera.ViewportSize.X/2,camera.ViewportSize.Y/2)
-                    local dx=(screen.X-center.X)*Config.AIM.Sensitivity
-                    local dy=(screen.Y-center.Y)*Config.AIM.Sensitivity
-                    pcall(mousemoverel,dx,dy)
+            task.wait(Config.AIM.TriggerDelay)
+            if mouse1click then pcall(mouse1click) end
+        end
+    end
+end)
+
+--//==================================================
+--// SCIENCE
+--//==================================================
+
+RunService.RenderStepped:Connect(function()
+    if Config.Science.Fog then
+        Lighting.FogColor = Config.Science.FogColor
+        Lighting.FogStart = Config.Science.FogStart
+        Lighting.FogEnd = Config.Science.FogEnd
+    end
+
+    if Config.Science.PlayerColor then
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and player.Character then
+                for _, part in ipairs(player.Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.Color = Config.Science.PlayerColorValue
+                    end
                 end
             end
         end
     end
 end)
 
---==================================================
--- THIRD PERSON
---==================================================
-
-local previousCameraType=nil
-local previousCameraSubject=nil
-
-RunService:BindToRenderStep("LEMOS_ThirdPerson",Enum.RenderPriority.Camera.Value+1,function()
-    local camera=Workspace.CurrentCamera
-    local character=LocalPlayer.Character
-    local root=character and character:FindFirstChild("HumanoidRootPart")
-    local humanoid=character and character:FindFirstChildOfClass("Humanoid")
-
-    if not camera or not root or not humanoid then return end
-
-    if Config.ThirdPerson.Enabled then
-        if not previousCameraType then
-            previousCameraType=camera.CameraType
-            previousCameraSubject=camera.CameraSubject
-        end
-
-        camera.CameraType=Enum.CameraType.Custom
-        camera.CameraSubject=humanoid
-
-        local look=camera.CFrame.LookVector
-        local desired=root.Position-look*Config.ThirdPerson.Distance+Vector3.new(0,Config.ThirdPerson.Height,0)
-        camera.CFrame=CFrame.lookAt(desired,root.Position+Vector3.new(0,1.5,0))
-    elseif previousCameraType then
-        camera.CameraType=previousCameraType
-        camera.CameraSubject=previousCameraSubject or humanoid
-        previousCameraType=nil
-        previousCameraSubject=nil
-    end
-end)
-
---==================================================
--- SPIN / FLIP
---==================================================
-
 RunService.Heartbeat:Connect(function(dt)
-    local character=LocalPlayer.Character
-    local root=character and character:FindFirstChild("HumanoidRootPart")
-    if not root then return end
-
-    if Config.Troll.Spinbot then
-        root.CFrame=root.CFrame*CFrame.Angles(0,math.rad(Config.Troll.SpinSpeed*60)*dt,0)
+    if Config.Science.Spinbot and LocalPlayer.Character then
+        local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if root then
+            root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(Config.Science.SpinbotSpeed * dt * 60), 0)
+        end
     end
 
-    if Config.Troll.Flip then
-        root.CFrame=root.CFrame*CFrame.Angles(math.rad(180)*dt,0,0)
+    if Config.Science.Flip and LocalPlayer.Character then
+        local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if root then
+            root.CFrame = root.CFrame * CFrame.Angles(math.rad(180) * dt, 0, 0)
+        end
     end
 end)
 
---==================================================
--- THEME REFRESH
---==================================================
-
-local function refreshTheme()
-    Theme=Themes[Config.Theme]
-
-    Main.BackgroundColor3=Theme.bg
-    MainStroke.Color=Theme.accent
-
-    Logo.BackgroundColor3=Theme.accent
-    LogoText.TextColor3=Theme.bg
-    Title.TextColor3=Theme.text
-    Version.TextColor3=Theme.accent
-
-    SideStroke.Color=Theme.text
-
-    for _,data in pairs(Tabs) do
-        data.Icon.TextColor3=Theme.sub
-        data.Text.TextColor3=Theme.sub
-        data.Button.BackgroundColor3=Theme.item
+RunService.RenderStepped:Connect(function()
+    if Config.Science.Scale ~= 1 and LocalPlayer.Character then
+        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.BodyDepthScale.Value = Config.Science.Scale
+            humanoid.BodyWidthScale.Value = Config.Science.Scale
+            humanoid.BodyHeightScale.Value = Config.Science.Scale
+            humanoid.HeadScale.Value = Config.Science.Scale
+        end
     end
+end)
 
-    FOVStroke.Color=Theme.accent
-    activate("ESP")
+--//==================================================
+--// SCAN & INIT
+--//==================================================
+
+local function scanTargets()
+    for _, obj in ipairs(Workspace:GetDescendants()) do
+        if obj:IsA("Model") then
+            createDrawingESP(obj)
+        end
+    end
 end
 
-local oldActivate=activate
-activate=function(name)
-    refreshTheme()
-    oldActivate(name)
+Workspace.DescendantAdded:Connect(function(obj)
+    task.wait(0.15)
+    if obj:IsA("Model") then
+        createDrawingESP(obj)
+    end
+end)
+
+Workspace.DescendantRemoving:Connect(function(obj)
+    if ESPObjects[obj] then
+        removeDrawingESP(obj)
+    end
+end)
+
+--//==================================================
+--// CONFIG SAVE/LOAD
+--//==================================================
+
+local function saveConfig()
+    local path = Config.ScriptName .. "/config.json"
+    local data = {}
+    for k, v in pairs(Config) do
+        if type(v) == "table" then
+            data[k] = {}
+            for k2, v2 in pairs(v) do
+                if type(v2) == "Color3" then
+                    data[k][k2] = {v2.R, v2.G, v2.B}
+                else
+                    data[k][k2] = v2
+                end
+            end
+        else
+            data[k] = v
+        end
+    end
+    safeWriteFile(path, HttpService:JSONEncode(data))
 end
 
---==================================================
--- WINDOW CONTROLS
---==================================================
+local function loadConfig()
+    local path = Config.ScriptName .. "/config.json"
+    if safeIsFile(path) then
+        local success, content = safeReadFile(path)
+        if success and content then
+            local data = HttpService:JSONDecode(content)
+            for k, v in pairs(data) do
+                if type(v) == "table" and Config[k] then
+                    for k2, v2 in pairs(v) do
+                        if type(v2) == "table" and v2[1] and v2[2] and v2[3] then
+                            Config[k][k2] = Color3.new(v2[1], v2[2], v2[3])
+                        else
+                            Config[k][k2] = v2
+                        end
+                    end
+                else
+                    Config[k] = v
+                end
+            end
+        end
+    end
+end
+
+--//==================================================
+--// WINDOW CONTROLS
+--//==================================================
 
 Close.MouseButton1Click:Connect(function()
-    Main.Visible=false
+    Main.Visible = false
 end)
 
-local minimized=false
-local savedSize=Main.Size
+local minimized = false
+local savedSize = Main.Size
 
 Minimize.MouseButton1Click:Connect(function()
-    minimized=not minimized
+    minimized = not minimized
     if minimized then
-        savedSize=Main.Size
-        Main.Size=UDim2.fromOffset(470,54)
-        Sidebar.Visible=false
-        Content.Visible=false
+        savedSize = Main.Size
+        Main.Size = UDim2.fromOffset(480,54)
+        Sidebar.Visible = false
+        Content.Visible = false
     else
-        Main.Size=savedSize
-        Sidebar.Visible=true
-        Content.Visible=true
+        Main.Size = savedSize
+        Sidebar.Visible = true
+        Content.Visible = true
     end
 end)
 
 UserInputService.InputBegan:Connect(function(input,processed)
     if processed then return end
-    if input.KeyCode==Enum.KeyCode.RightShift then
-        Main.Visible=not Main.Visible
+    if input.KeyCode == Enum.KeyCode.RightShift then
+        Main.Visible = not Main.Visible
     end
 end)
 
---==================================================
--- DRAG / MOBILE
---==================================================
+--//==================================================
+--// DRAG / MOBILE
+--//==================================================
 
-local dragging=false
-local dragStart=nil
-local startPosition=nil
+local dragging = false
+local dragStart = nil
+local startPosition = nil
 
 local function beginDrag(input)
-    dragging=true
-    dragStart=input.Position
-    startPosition=Main.Position
+    dragging = true
+    dragStart = input.Position
+    startPosition = Main.Position
 
     input.Changed:Connect(function()
-        if input.UserInputState==Enum.UserInputState.End then
-            dragging=false
+        if input.UserInputState == Enum.UserInputState.End then
+            dragging = false
         end
     end)
 end
 
 Header.InputBegan:Connect(function(input)
-    if input.UserInputType==Enum.UserInputType.MouseButton1
-    or input.UserInputType==Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
         beginDrag(input)
     end
 end)
 
 UserInputService.InputChanged:Connect(function(input)
     if not dragging then return end
-    if input.UserInputType==Enum.UserInputType.MouseMovement
-    or input.UserInputType==Enum.UserInputType.Touch then
-        local delta=input.Position-dragStart
-        Main.Position=UDim2.new(
+    if input.UserInputType == Enum.UserInputType.MouseMovement
+    or input.UserInputType == Enum.UserInputType.Touch then
+        local delta = input.Position - dragStart
+        Main.Position = UDim2.new(
             startPosition.X.Scale,
-            startPosition.X.Offset+delta.X,
+            startPosition.X.Offset + delta.X,
             startPosition.Y.Scale,
-            startPosition.Y.Offset+delta.Y
+            startPosition.Y.Offset + delta.Y
         )
     end
 end)
 
---==================================================
--- OPEN ANIMATION
---==================================================
+--//==================================================
+--// THEME REFRESH
+--//==================================================
 
-local targetSize=Main.Size
-Main.Size=UDim2.fromOffset(410,285)
-tween(Main,{Size=targetSize},.42):Play()
+local function refreshTheme()
+    Theme = Themes[Config.Theme]
 
---==================================================
--- START
---==================================================
+    Main.BackgroundColor3 = Theme.bg
+    MainStroke.Color = Theme.accent
 
+    Logo.BackgroundColor3 = Theme.accent
+    LogoText.TextColor3 = Theme.bg
+    Title.TextColor3 = Theme.text
+    Version.TextColor3 = Theme.accent
+
+    SideStroke.Color = Theme.text
+
+    for _, data in pairs(Tabs) do
+        data.Button.BackgroundColor3 = Theme.item
+        data.Button.TextColor3 = Theme.sub
+    end
+
+    if FOVCircle then FOVCircle.Color = Theme.accent end
+    activate("ESP")
+end
+
+local oldActivate = activate
+activate = function(name)
+    refreshTheme()
+    oldActivate(name)
+end
+
+--//==================================================
+--// OPEN ANIMATION
+--//==================================================
+
+local targetSize = Main.Size
+Main.Size = UDim2.fromOffset(420, 295)
+tween(Main, {Size=targetSize}, .42):Play()
+
+--//==================================================
+--// START
+--//==================================================
+
+loadConfig()
+scanTargets()
 activate("ESP")
 
-print("[LEMOS] Delta edition loaded.")
-print("[LEMOS] ESP targets: players only.")
-print("[LEMOS] Aim modes: Camera / Mouse.")
+print("[LEMOS] Standoff Edition loaded. Executor: " .. Executor)
